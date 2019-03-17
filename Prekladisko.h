@@ -14,6 +14,7 @@ class Prekladisko
 private:
 	string okres_;
 	ArrayList<Dron*> *drony_;
+	double maxHmotnost_;
 
 public:
 	int getTopDron(); //vrati aky najlespi dron je v prekladisku

@@ -22,6 +22,8 @@ private:
 	Prekladisko* getPrekladisko(string okres);
 	bool overDolet(string okres, double vzdialenost);
 	bool overNosnost(string okres, double hmotnost);
+	bool overNosnostAutaZvoz(string okres, double hmotnost);
+	bool overNosnostAutaRozvoz(string okres, double hmotnost);
 
 public:
 	void vyber();

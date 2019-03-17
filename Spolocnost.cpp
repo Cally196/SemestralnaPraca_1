@@ -98,6 +98,31 @@ bool Spolocnost::overNosnost(string okres, double hmotnost)
 	}
 }
 
+bool Spolocnost::overNosnostAutaZvoz(string okres, double hmotnost)
+{
+	for (Vozidlo *vozidlo : *vozidla_  )
+	{
+		if (vozidlo->patriRegionu(okres) && (vozidlo->getHmotnostZvoz() + hmotnost)/1000 <= vozidlo->getNosnost())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool Spolocnost::overNosnostAutaRozvoz(string okres, double hmotnost)
+{
+	for (Vozidlo *vozidlo : *vozidla_)
+	{
+		if (vozidlo->patriRegionu(okres) && (vozidlo->getHmotnostRozvoz() + hmotnost)/1000 <= vozidlo->getNosnost())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void Spolocnost::vyber()
 {
 	int volba_;
@@ -119,16 +144,37 @@ void Spolocnost::vyber()
 			break;
 
 		case 2: {
-			string spz;
+			string spz, okres;
 			double nosnost;
 			double naklady;
+			Array<string> *trasa = new Array<string>(25);
+			int index = 0;
 			cout << "\nZadajte SPZ:\n";
 			cin >> spz;
 			cout << "Zadajte nosnost(v tonach):\n";
 			cin >> nosnost;
 			cout << "Zadajte prevadzkove naklady:\n";
 			cin >> naklady;
-			Vozidlo *vozidlo = new Vozidlo(spz, nosnost, naklady, datum_);
+
+			do
+			{
+				cout << "\nZadaj okres do trasy. Pre ukoncenie zadaj 'koniec'\n";
+				cin >> okres;
+				if (okres == "koniec")
+				{
+					break;
+				}
+				else {
+					if (getPrekladisko(okres) != nullptr)
+					{
+						(*trasa)[index] = okres;						
+						index++;
+					}
+				}
+			} while (true);
+
+
+			Vozidlo *vozidlo = new Vozidlo(spz, nosnost, naklady, datum_, trasa);
 			vozidla_->add(vozidlo);			
 			cout << "Vozidlo bolo pridane do databazy.\n";
 			break;
@@ -231,7 +277,7 @@ void Spolocnost::vyber()
 			cin >> vzdialenostAdresata;
 
 			if (overDolet(regionOdosielatela, vzdialenostOodosielatela) && overDolet(regionAdresata, vzdialenostAdresata) && overNosnost(regionOdosielatela, hmotnost) &&
-				overNosnost(regionAdresata, hmotnost))
+				overNosnost(regionAdresata, hmotnost) && overNosnostAutaZvoz(regionOdosielatela, hmotnost) && overNosnostAutaRozvoz(regionAdresata, hmotnost))
 			{
 				Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata);
 				objednavky_->add(objednavka);
