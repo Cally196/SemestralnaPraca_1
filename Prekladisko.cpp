@@ -5,6 +5,47 @@
 
 
 
+ArrayList<Dron*>* Prekladisko::getZoznamDronov()
+{
+	return drony_;
+}
+
+double Prekladisko::getMaxHmotnost()
+{
+	return maxHmotnost_;
+}
+
+Dron * Prekladisko::getDron(double hmotnost)
+{
+	Dron *pickDron = (*drony_)[0];
+	
+	for (Dron *dron : *drony_)
+	{
+		if (hmotnost > 2)
+		{
+			if (dron->getTyp() == 2)
+			{
+				if (dron->getCasVolny() < pickDron->getCasVolny())
+				{
+					pickDron = dron;
+				}
+				//if (dron->getCasVolny() == pickDron->getCasVolny() ) // TODO najviac nabity
+				//{
+
+				//}
+			}
+		}
+		else
+		{
+			if (dron->getCasVolny() < pickDron->getCasVolny())
+			{
+				pickDron = dron;
+			}
+		}
+	}
+	return pickDron;
+}
+
 int Prekladisko::getTopDron()
 {
 	int typ = 0;
@@ -51,9 +92,17 @@ string Prekladisko::getOkres()
 	return okres_;
 }
 
+Prekladisko::Prekladisko(string okres, double maxHmotnost):
+	okres_(okres),
+	drony_(new ArrayList<Dron*>()), 
+	maxHmotnost_(maxHmotnost)
+{
+}
+
 Prekladisko::Prekladisko(string okres):
 	okres_(okres),
-	drony_(new ArrayList<Dron*>())
+	drony_(new ArrayList<Dron*>()),
+	maxHmotnost_(0)
 {
 }
 

@@ -3,12 +3,13 @@
 
 
 
-Objednavka::Objednavka(double hmotnost, std::string reg1, double vzdia1, std::string reg2, double vzdia2):
+Objednavka::Objednavka(double hmotnost, std::string reg1, double vzdia1, std::string reg2, double vzdia2, int cisloObjednavky):
 	hmotnostZasielky_(hmotnost),
 	odosielatelRegion_(reg1),
 	vzdialenostOdosielatela_(vzdia1),
 	adresatRegion_(reg2),
-	vzdialenostAdresata_(vzdia2)
+	vzdialenostAdresata_(vzdia2),
+	cisloObjednavky_(cisloObjednavky)
 {
 }
 

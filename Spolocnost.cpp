@@ -19,11 +19,14 @@ void Spolocnost::vypisMenu()
 	cout << "\nVyber moznost:\n"
 			"0. Ukonci aplikaciu\n"
 			"1. Vypis aktuapny cas\n"
-			"2. Pridaj nove vozidlo\n"
-			"3. Vypis zoznam vozidiel\n"
-			"4. Pridaj novy dron\n"
-			"5. Vypis vsetky drony v danom prekladisku\n"
-			"6. Vytvor objednavku\n"
+			"2. Posun cas o hodinu\n"
+			"3. Pridaj nove vozidlo\n"
+			"4. Vypis zoznam vozidiel\n"
+			"5. Pridaj novy dron\n"
+			"6. Vypis vsetky drony v danom prekladisku\n"
+			"7. Vytvor objednavku\n"
+			"15. Zapis do suboru\n"
+			"16. Nacitaj zo suboru\n"
 			">>";
 }
 
@@ -123,9 +126,76 @@ bool Spolocnost::overNosnostAutaRozvoz(string okres, double hmotnost)
 	return false;
 }
 
+Dron * Spolocnost::getDostupnyDron(double hmotnost, string okres)
+{
+	Prekladisko *prekladisko = nullptr;
+	Dron *dostupnyDron = nullptr;
+	prekladisko = getPrekladisko(okres);
+	dostupnyDron = prekladisko->getDron(hmotnost);
+	   
+	return dostupnyDron;
+}
+
+void Spolocnost::zapisDoSuboru()
+{
+	ofstream zapis;
+	zapis.open("save.txt");
+
+	if (zapis.is_open())
+	{
+		zapis << vozidla_->size() << endl;
+		for (Vozidlo *vozidlo : * vozidla_ )
+		{
+			zapis << vozidlo->getSpz() << " " << vozidlo->getNosnost() << " " <<
+				vozidlo->getNaklady() << " " << vozidlo->getDlzkaTrasy() << " " << vozidlo->getTrasa() << " ";
+		}
+		zapis << endl;
+
+		zapis << prekladiska_->size();
+
+		for (Prekladisko *prekladisko : *prekladiska_)
+		{
+			zapis << prekladisko->getOkres() << " " << prekladisko->getMaxHmotnost() << " " <<
+				prekladisko->getZoznamDronov()->size() << " ";
+			for (Dron *dron : *prekladisko->getZoznamDronov())
+			{
+				zapis << dron->getInfoNaZapis();
+			}
+		}
+
+
+
+	}
+}
+
+void Spolocnost::nacitajZoSuboru()
+{
+	ifstream citac;
+	citac.open("save.txt");
+	int vozidla, dlzkaTrasy;
+	string spz, okres;
+	double nosnost, naklady;
+	
+	citac >> vozidla;
+	for (int i = 0; i < vozidla; i++)
+	{
+		citac >> spz >> nosnost >> naklady;
+		citac >> dlzkaTrasy;
+		LinkedList<string> *trasa = new LinkedList<string>;
+		for (int i = 0; i < dlzkaTrasy; i++)
+		{
+			citac >> okres;
+			trasa->add(okres);
+		}
+		Vozidlo *vozidlo = new Vozidlo(spz, nosnost, naklady, datum_, trasa);
+		vozidla_->add(vozidlo);
+	}
+}
+
 void Spolocnost::vyber()
 {
-	int volba_;
+	int volba_, cisloObjednavky = 100;
+	
 
 	while (run_)
 	{
@@ -143,12 +213,18 @@ void Spolocnost::vyber()
 			cout << "\nAktualny datum: " + datum_.toString() + "\n";
 			break;
 
-		case 2: {
+		case 2:
+		{
+			datum_ = Datum::posunOHodinu(datum_);
+			break;
+		}
+
+		case 3:
+		{
 			string spz, okres;
 			double nosnost;
 			double naklady;
-			Array<string> *trasa = new Array<string>(25);
-			int index = 0;
+			LinkedList<string> *trasa = new LinkedList<string>;		
 			cout << "\nZadajte SPZ:\n";
 			cin >> spz;
 			cout << "Zadajte nosnost(v tonach):\n";
@@ -167,8 +243,7 @@ void Spolocnost::vyber()
 				else {
 					if (getPrekladisko(okres) != nullptr)
 					{
-						(*trasa)[index] = okres;						
-						index++;
+						trasa->add(okres);					
 					}
 				}
 			} while (true);
@@ -180,7 +255,7 @@ void Spolocnost::vyber()
 			break;
 		}
 
-		case 3: {
+		case 4: {
 			cout << endl;
 			cout << setw(20) << left << "SPZ";
 			cout << setw(20) << left << "Nosnost";
@@ -193,7 +268,7 @@ void Spolocnost::vyber()
 			break;
 		}
 
-		case 4: {
+		case 5: {
 			int typ;
 			string serioveCislo, okres;
 			bool flag = true;
@@ -222,7 +297,7 @@ void Spolocnost::vyber()
 			break;
 		}
 
-		case 5: 
+		case 6: 
 		{
 			string okres;
 			Prekladisko *prekladisko = nullptr;
@@ -240,8 +315,9 @@ void Spolocnost::vyber()
 			break;
 		}
 
-		case 6:
+		case 7:
 		{
+			bool potvrdObjednavku = true;
 			double hmotnost; 
 			string regionOdosielatela, regionAdresata;
 			double vzdialenostOodosielatela, vzdialenostAdresata;
@@ -276,22 +352,66 @@ void Spolocnost::vyber()
 			cout << "Zadajte vzdialenost adresata od prekladiska[km]\n";
 			cin >> vzdialenostAdresata;
 
+			int minutyNaLokPrekladisko = 0;
+
 			if (overDolet(regionOdosielatela, vzdialenostOodosielatela) && overDolet(regionAdresata, vzdialenostAdresata) && overNosnost(regionOdosielatela, hmotnost) &&
 				overNosnost(regionAdresata, hmotnost) && overNosnostAutaZvoz(regionOdosielatela, hmotnost) && overNosnostAutaRozvoz(regionAdresata, hmotnost))
 			{
-				Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata);
-				objednavky_->add(objednavka);
-				cout << "\nObjednavka bola prijata\n";
+				Dron *dostupnyDron = getDostupnyDron(hmotnost, regionOdosielatela);
+				Datum datumVyzdvihnutia = dostupnyDron->getCasVolny();
+				if (dostupnyDron->getTyp() == 1)
+				{
+					minutyNaLokPrekladisko = 0.75 * vzdialenostOodosielatela + 1;
+					datumVyzdvihnutia = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko);
+				}
+				else {
+					minutyNaLokPrekladisko = 1.5 * vzdialenostOodosielatela + 1;
+					datumVyzdvihnutia = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko);
+				}
+
+				Datum pomDatum = Datum::posunOHodinu(datum_);
+
+				if (datumVyzdvihnutia < pomDatum)
+				{
+					potvrdObjednavku = true;
+				}
+				else {
+					cout << "Cas na vyzdvihnutie je viac ako hodina. Prajete si objednavku zrusit? [A/N]\n";
+					string moznost;
+					cin >> moznost;
+					if (moznost == "A") potvrdObjednavku = false;
+				}
+
+				if (potvrdObjednavku)
+				{
+					Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata, cisloObjednavky);
+					Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko);
+					cisloObjednavky++;
+					objednavky_->add(objednavka);
+					dostupnyDron->pridajZasielku(zasielka);
+					cout << "\nObjednavka bola prijata\n";
+
+				}
+				else
+				{
+					cout << "Objednavka bola zrusena.\n";
+				}
 			}
 			else
 			{
 				cout << "\nObjednavka bola zamietanuta zo strany AoE\n";
 			}
-
-
-
 			break;
 		}
+
+		case 15:		
+			zapisDoSuboru();
+			break;
+
+		case 16:
+			nacitajZoSuboru();
+			break;
+
 		default:
 			cout << "\nZly vstup. Zadaj znovu:\n";
 			break;

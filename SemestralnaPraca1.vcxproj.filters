@@ -72,6 +72,9 @@
     <ClCompile Include="Objednavka.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Zasielka.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="structures\queue\queue.h">
@@ -248,8 +251,14 @@
     <ClInclude Include="Objednavka.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Zasielka.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="structures\aus.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

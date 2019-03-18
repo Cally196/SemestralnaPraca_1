@@ -161,6 +161,7 @@
     <ClCompile Include="structures\table\sorting\sort.cpp" />
     <ClCompile Include="structures\vector\vector.cpp" />
     <ClCompile Include="Vozidlo.cpp" />
+    <ClCompile Include="Zasielka.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Datum.h" />
@@ -221,9 +222,13 @@
     <ClInclude Include="structures\tree\tree.h" />
     <ClInclude Include="structures\vector\vector.h" />
     <ClInclude Include="Vozidlo.h" />
+    <ClInclude Include="Zasielka.h" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="structures\aus.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

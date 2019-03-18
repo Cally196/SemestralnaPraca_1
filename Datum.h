@@ -10,6 +10,10 @@ private:
 	int minuta_, hodina_, den_;
 
 public:
+	static Datum pridajMinuty(Datum &datum, int minuty);
+	static Datum posunOHodinu(Datum &datum);
+	bool operator<(Datum &datum);
+	bool operator==(Datum & datum);
 	string toString();
 	Datum(int hodina, int minuta, int den);
 	~Datum();

@@ -7,6 +7,35 @@
 
 using namespace std;
 
+
+int Vozidlo::getDlzkaTrasy()
+{
+	return trasa_->size();
+}
+
+string Vozidlo::getTrasa()
+{
+	string trasa;
+
+	for (string okres : *trasa_)
+	{
+		trasa += " ";
+		trasa += okres;
+	}
+	trasa += " ";
+	return trasa;
+}
+
+double Vozidlo::getNaklady()
+{
+	return naklady_;
+}
+
+string Vozidlo::getSpz()
+{
+	return spz_;
+}
+
 double Vozidlo::getNosnost()
 {
 	return nosnost_;
@@ -40,7 +69,7 @@ void Vozidlo::vypisInfo()
 	cout << endl;
 }
 
-Vozidlo::Vozidlo(string spz, double nosnost, double naklady, Datum datum, structures::Array<string> *trasa):
+Vozidlo::Vozidlo(string spz, double nosnost, double naklady, Datum datum, structures::LinkedList<string> *trasa):
 	spz_(spz),
 	nosnost_(nosnost),
 	naklady_(naklady),
@@ -48,7 +77,7 @@ Vozidlo::Vozidlo(string spz, double nosnost, double naklady, Datum datum, struct
 	datum_(datum),
 	hmotnostRozvoz_(0),
 	hmotnostZvoz_(0),
-	trasa_(trasa)
+	trasa_(trasa)	
 {
 }
 
