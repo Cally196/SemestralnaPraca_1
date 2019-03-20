@@ -25,6 +25,8 @@ private:
 	bool overNosnostAutaZvoz(string okres, double hmotnost);
 	bool overNosnostAutaRozvoz(string okres, double hmotnost);
 	Dron* getDostupnyDron(double hmotnost, string okres);
+	Dron* getDostupnyDron(double hmotnost, string okres, Dron *dron);
+	void vylozDrony();
 	void zapisDoSuboru();
 	void nacitajZoSuboru();
 

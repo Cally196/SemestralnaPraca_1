@@ -51,12 +51,12 @@ int Spolocnost::skontrolujInt()
 
 Prekladisko* Spolocnost::getPrekladisko(string okres)
 {
-	Prekladisko *prekladisko = nullptr;
+	Prekladisko *prekladisko_ = nullptr;
 	for (Prekladisko *prekladisko : *prekladiska_)
 	{
 		if (prekladisko->getOkres() == okres) return prekladisko;
 	}
-	return prekladisko;
+	return prekladisko_;
 }
 
 bool Spolocnost::overDolet(string okres, double vzdialenost)
@@ -131,9 +131,27 @@ Dron * Spolocnost::getDostupnyDron(double hmotnost, string okres)
 	Prekladisko *prekladisko = nullptr;
 	Dron *dostupnyDron = nullptr;
 	prekladisko = getPrekladisko(okres);
-	dostupnyDron = prekladisko->getDron(hmotnost);
+	dostupnyDron = prekladisko->getDron(hmotnost, &datum_);
 	   
 	return dostupnyDron;
+}
+
+Dron * Spolocnost::getDostupnyDron(double hmotnost, string okres, Dron * dron)
+{
+	Prekladisko *prekladisko = nullptr;
+	Dron *dostupnyDron = nullptr;
+	prekladisko = getPrekladisko(okres);
+	dostupnyDron = prekladisko->getDron(hmotnost, &datum_, dron);
+
+	return dostupnyDron;
+}
+
+void Spolocnost::vylozDrony()
+{
+	for (Prekladisko *prekladisko : *prekladiska_)
+	{
+		prekladisko->vylozDrony(datum_);
+	}
 }
 
 void Spolocnost::zapisDoSuboru()
@@ -151,7 +169,7 @@ void Spolocnost::zapisDoSuboru()
 		}
 		zapis << endl;
 
-		zapis << prekladiska_->size();
+		zapis << prekladiska_->size() << " ";
 
 		for (Prekladisko *prekladisko : *prekladiska_)
 		{
@@ -172,9 +190,9 @@ void Spolocnost::nacitajZoSuboru()
 {
 	ifstream citac;
 	citac.open("save.txt");
-	int vozidla, dlzkaTrasy;
-	string spz, okres;
-	double nosnost, naklady;
+	int vozidla, dlzkaTrasy, prekladiska, drony, typ, nalietaneMinuty, pocPrepravenychZasielok, zasielky, cisloOnjednavky, minNaLokPrekladisko;
+	string spz, okres, serioveCislo;
+	double nosnost, naklady, maxHmotnost, kapacitaBaterie;
 	
 	citac >> vozidla;
 	for (int i = 0; i < vozidla; i++)
@@ -182,13 +200,42 @@ void Spolocnost::nacitajZoSuboru()
 		citac >> spz >> nosnost >> naklady;
 		citac >> dlzkaTrasy;
 		LinkedList<string> *trasa = new LinkedList<string>;
-		for (int i = 0; i < dlzkaTrasy; i++)
+		for (int j = 0; j < dlzkaTrasy; j++)
 		{
 			citac >> okres;
 			trasa->add(okres);
 		}
 		Vozidlo *vozidlo = new Vozidlo(spz, nosnost, naklady, datum_, trasa);
 		vozidla_->add(vozidlo);
+	}
+
+	for (Prekladisko *prekladisko : *prekladiska_)
+	{
+		delete prekladisko;
+	}
+	prekladiska_->clear();
+	citac >> prekladiska;
+	for (int i = 0; i < prekladiska; i++)
+	{
+		citac >> okres >> maxHmotnost >> drony;
+		ArrayList<Dron*> *drony_ = new ArrayList<Dron*>();
+		for (int j = 0; j < drony; j++)
+		{
+			citac >> typ >> serioveCislo >> nalietaneMinuty >> pocPrepravenychZasielok >> kapacitaBaterie >> zasielky;
+			LinkedList<Zasielka*> *zasielky_ = new LinkedList<Zasielka*>();	
+			for (int k = 0; k < zasielky; k++)
+			{
+				citac >> cisloOnjednavky >> minNaLokPrekladisko;
+				Zasielka *zasielka = new Zasielka(cisloOnjednavky, minNaLokPrekladisko, datum_, okres);
+				zasielky_->add(zasielka);
+			}			
+			Dron *dron = new Dron(typ, serioveCislo, datum_, nalietaneMinuty, pocPrepravenychZasielok, kapacitaBaterie, zasielky_);
+			drony_->add(dron);
+		}
+	
+		Prekladisko *prekladisko_ = new Prekladisko(okres, maxHmotnost, drony_);
+		prekladiska_->add(prekladisko_);
+
 	}
 }
 
@@ -216,6 +263,7 @@ void Spolocnost::vyber()
 		case 2:
 		{
 			datum_ = Datum::posunOHodinu(datum_);
+			vylozDrony();
 			break;
 		}
 
@@ -353,6 +401,9 @@ void Spolocnost::vyber()
 			cin >> vzdialenostAdresata;
 
 			int minutyNaLokPrekladisko = 0;
+			int minutyNaDobitie = 0;
+			int minutyAdresat = 0;
+			bool flag = false;
 
 			if (overDolet(regionOdosielatela, vzdialenostOodosielatela) && overDolet(regionAdresata, vzdialenostAdresata) && overNosnost(regionOdosielatela, hmotnost) &&
 				overNosnost(regionAdresata, hmotnost) && overNosnostAutaZvoz(regionOdosielatela, hmotnost) && overNosnostAutaRozvoz(regionAdresata, hmotnost))
@@ -362,45 +413,86 @@ void Spolocnost::vyber()
 				if (dostupnyDron->getTyp() == 1)
 				{
 					minutyNaLokPrekladisko = 0.75 * vzdialenostOodosielatela + 1;
-					datumVyzdvihnutia = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko);
+					minutyNaDobitie = (minutyNaLokPrekladisko * 2) / 4 * 3;
+					if (minutyNaLokPrekladisko % 4 != 0) minutyNaDobitie += 3;					
 				}
 				else {
 					minutyNaLokPrekladisko = 1.5 * vzdialenostOodosielatela + 1;
-					datumVyzdvihnutia = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko);
+					minutyNaDobitie = (minutyNaLokPrekladisko * 2) / 6 * 5;
+					if (minutyNaLokPrekladisko % 4 != 0) minutyNaDobitie += 5;
 				}
+				datumVyzdvihnutia = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko); //zas kedy moze dostupny dron vyzdvihnut zasielku
 
-				Datum pomDatum = Datum::posunOHodinu(datum_);
 
-				if (datumVyzdvihnutia < pomDatum)
+
+
+
+				if (regionAdresata == regionOdosielatela) // overenie ci sa zasielka stihne dorucit do 18 hodiny ak sa regiony rovnaju
 				{
-					potvrdObjednavku = true;
-				}
-				else {
-					cout << "Cas na vyzdvihnutie je viac ako hodina. Prajete si objednavku zrusit? [A/N]\n";
-					string moznost;
-					cin >> moznost;
-					if (moznost == "A") potvrdObjednavku = false;
+					Datum datLokPrekladisko = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko + minutyNaDobitie); //cas kedy ten isty dron bude ready na odvezenie zasielky
+					Dron *alternativnyDron = getDostupnyDron(hmotnost, regionOdosielatela, dostupnyDron);
+					if (alternativnyDron->getCasVolny() < datLokPrekladisko)
+					{
+						if (alternativnyDron->getTyp() == 1)
+						{
+							minutyAdresat = 0.75 * vzdialenostAdresata + 1;							
+						}
+						else {
+							minutyAdresat = 1.5 * vzdialenostAdresata + 1;						
+						}
+						Datum dorucenie = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko + minutyAdresat);
+						if (dorucenie.getHodina() >= 18) flag = true;
+						dostupnyDron = alternativnyDron;
+					}
+					else
+					{
+						if (dostupnyDron->getTyp() == 1)
+						{
+							minutyAdresat = 0.75 * vzdialenostAdresata + 1;
+						}
+						else {
+							minutyAdresat = 1.5 * vzdialenostAdresata + 1;
+						}
+						Datum dorucenie = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko + minutyAdresat + minutyNaDobitie);
+						if (dorucenie.getHodina() >= 18) flag = true;
+					}
 				}
 
-				if (potvrdObjednavku)
+				if (datumVyzdvihnutia.getHodina() >= 20) flag = true; //ak sa zasielka moze vyzdvihnut az po 20 hodine objednavka sa zrusi 
+				if (!flag)
 				{
-					Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata, cisloObjednavky);
-					Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko);
-					cisloObjednavky++;
-					objednavky_->add(objednavka);
-					dostupnyDron->pridajZasielku(zasielka);
-					cout << "\nObjednavka bola prijata\n";
+					Datum pomDatum = Datum::posunOHodinu(datum_);  //datum na kontrolu ci sa stihne zasielka vyzdvihnut do 1 hodiny
+					if (datumVyzdvihnutia < pomDatum)
+					{
+						potvrdObjednavku = true;
+					}
+					else {
+						cout << "Cas na vyzdvihnutie je viac ako hodina. Prajete si objednavku zrusit? [A/N]\n";
+						string moznost;
+						cin >> moznost;
+						if (moznost == "A") potvrdObjednavku = false;
+					}
 
+					if (potvrdObjednavku)
+					{
+						Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata, cisloObjednavky);
+						Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko, Datum::pridajMinuty(datum_, minutyNaLokPrekladisko*2), regionAdresata);
+						cisloObjednavky++;
+						objednavky_->add(objednavka);
+						dostupnyDron->pridajZasielku(zasielka);
+						cout << "\nObjednavka bola prijata\n";
+
+					}
+					else cout << "Objednavka bola zrusena.\n";
 				}
 				else
 				{
 					cout << "Objednavka bola zrusena.\n";
 				}
 			}
-			else
-			{
-				cout << "\nObjednavka bola zamietanuta zo strany AoE\n";
-			}
+			else flag = true;
+
+			if (flag) cout << "\nObjednavka bola zamietanuta zo strany AoE\n";		
 			break;
 		}
 

@@ -3,7 +3,39 @@
 #include <iostream>
 #include <iomanip>
 
+using namespace structures;
 using namespace std;
+
+structures::LinkedList<Zasielka*> *Dron::vylozZasielky(Datum datum)
+{
+	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
+
+	
+	for (Zasielka *zasielka : *zasielky_)
+	{
+		if (zasielka->getDatumNaLokPrekladisko() < datum)
+		{
+			zasielky->add(zasielka);
+			zasielky_->tryRemove(zasielka);
+			//delete zasielka;
+		}
+		if (zasielky_->size() == 0) break;
+	}
+	
+	//for (Zasielka *zasielka : *zasielky_)
+	//{
+	//	if (zasielka->getDatumNaLokPrekladisko() < datum)
+	//	{			
+	//		zasielky_->tryRemove(zasielka);
+	//	}
+	//}
+	return zasielky;
+}
+
+double Dron::getKapacitaBaterie()
+{
+	return kapacitaBaterie_;
+}
 
 string Dron::getInfoNaZapis()
 {
@@ -29,13 +61,38 @@ string Dron::getInfoNaZapis()
 void Dron::pridajZasielku(Zasielka * zasielka)
 {
 	zasielky_->add(zasielka);
+	int casNaNabitie = 0;
+	if (typ_ == 1)
+	{	
+		casNaNabitie = (zasielka->getMinutyNaLokPrekladisko() * 2) / 4 * 3;
+		if (zasielka->getMinutyNaLokPrekladisko() % 4 != 0) casNaNabitie += 3;
+		kapacitaBaterie_ -= (zasielka->getMinutyNaLokPrekladisko() * 2) / 40;
+	} 
+	else
+	{
+		casNaNabitie = (zasielka->getMinutyNaLokPrekladisko() * 2) / 6 * 5;
+		if (zasielka->getMinutyNaLokPrekladisko() % 6 != 0) casNaNabitie += 5;
+		kapacitaBaterie_ -= (zasielka->getMinutyNaLokPrekladisko() * 2) / 60;
+	}
+	zasielka->setCasNaDobitie(casNaNabitie);
 	casVolny_ = Datum::pridajMinuty(casVolny_, zasielka->getMinutyNaLokPrekladisko() * 2);
+	
+
+	nalietaneMinuty_ += 2 * zasielka->getMinutyNaLokPrekladisko();
 
 }
 
 Datum Dron::getCasVolny()
 {
-	return casVolny_;
+	int minutyNaDobitie = 0;	
+	for (Zasielka *zasielka : *zasielky_)
+	{
+		minutyNaDobitie += zasielka->getCasNaDobitie();
+	}
+	if (typ_ == 1) minutyNaDobitie -= kapacitaBaterie_ * 40;
+	else minutyNaDobitie -= kapacitaBaterie_ * 60;
+	Datum newDatum = Datum::pridajMinuty(casVolny_, minutyNaDobitie);
+	return newDatum;
 }
 
 int Dron::getTyp()
@@ -45,8 +102,9 @@ int Dron::getTyp()
 
 void Dron::vypisInfo()
 {
+	double nalietaneHodiny = nalietaneMinuty_ / (double)60;
 	cout << setw(12) << left << typ_;
-	cout << setw(30) << left << nalietaneMinuty_/60;
+	cout << setw(30) << left << nalietaneHodiny;
 	cout << setw(30) << left << pocetPrepravenychZasielok_;
 	cout << setw(30) << left << datumZaradenia_.toString();
 	cout << endl;

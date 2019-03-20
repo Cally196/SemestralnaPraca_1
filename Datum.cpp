@@ -1,17 +1,23 @@
 #include "Datum.h"
 #include "structures/heap_monitor.h"
-
+#include <iostream>
 using namespace std;
 
+
+int Datum::getHodina()
+{
+	return hodina_;
+}
 
 Datum Datum::pridajMinuty(Datum & datum, int minuty)
 {
 	int cas = minuty;
 	int hodiny_, dni_;
 	Datum novyDatum = datum;
-	dni_ = cas % 1440;
+	dni_ = cas / 1440;
+	//cout << "dni" << dni_;
 	cas -= dni_ * 1440;
-	hodiny_ = cas % 60;
+	hodiny_ = cas / 60;
 	cas -= hodiny_ * 60; 
 
 	novyDatum.minuta_ += cas;
