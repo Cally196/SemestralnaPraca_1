@@ -20,13 +20,15 @@ private:
 	void vypisMenu();
 	int skontrolujInt();
 	Prekladisko* getPrekladisko(string okres);
-	bool overDolet(string okres, double vzdialenost);
-	bool overNosnost(string okres, double hmotnost);
-	bool overNosnostAutaZvoz(string okres, double hmotnost);
-	bool overNosnostAutaRozvoz(string okres, double hmotnost);
-	Dron* getDostupnyDron(double hmotnost, string okres);
-	Dron* getDostupnyDron(double hmotnost, string okres, Dron *dron);
+	bool overDolet(int topDron, double vzdialenost);
+	bool overNosnost(int topDron, double hmotnost);
+	Vozidlo* overNosnostAutaZvoz(string okres, double hmotnost);
+	Vozidlo* overNosnostAutaRozvoz(string okres, double hmotnost);
+	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko);
+	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko, Dron *dron);
 	void vylozDrony();
+	void navratVozidielDoCentralnehoSkladu();
+	void nalozenieVozidielVCentralnomSklade();
 	void zapisDoSuboru();
 	void nacitajZoSuboru();
 

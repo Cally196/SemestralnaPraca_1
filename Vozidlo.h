@@ -3,6 +3,7 @@
 #include "structures/list/linked_list.h"
 #include <string>
 #include "Datum.h"
+#include "Zasielka.h"
 
 using namespace std;
 
@@ -16,9 +17,15 @@ private:
 	double celkoveNaklady_;
 	Datum datum_;
 	double hmotnostZvoz_, hmotnostRozvoz_;
+	structures::LinkedList<Zasielka*> *zasielky_;
 
 	
 public:
+	structures::LinkedList<Zasielka*>* getZasielky();
+	void setCelkoveNaklady(int pocetPrekldisk);
+	void pridajZasielkuNaRozvoz(Zasielka *zasielka);
+	void setHmotnostRozvoz(double hmotnost);
+	void setHmotnostZvoz(double hmotnost);
 	int getDlzkaTrasy();
 	string getTrasa();
 	double getNaklady();

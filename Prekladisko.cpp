@@ -5,6 +5,11 @@
 
 
 
+LinkedList<Zasielka*>* Prekladisko::getZasielkyNaOdvoz()
+{
+	return zasielkyNaOdvoz_;
+}
+
 void Prekladisko::vylozDrony(Datum datum)
 {
 	for (Dron *dron : *drony_)

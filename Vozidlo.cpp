@@ -8,6 +8,31 @@
 using namespace std;
 
 
+structures::LinkedList<Zasielka*>* Vozidlo::getZasielky()
+{
+	return zasielky_;
+}
+
+void Vozidlo::setCelkoveNaklady(int pocetPrekldisk)
+{
+	celkoveNaklady_ += 2 * pocetPrekldisk * naklady_;
+}
+
+void Vozidlo::pridajZasielkuNaRozvoz(Zasielka * zasielka)
+{
+	zasielky_->add(zasielka);
+}
+
+void Vozidlo::setHmotnostRozvoz(double hmotnost)
+{
+	hmotnostRozvoz_ += hmotnost;
+}
+
+void Vozidlo::setHmotnostZvoz(double hmotnost)
+{
+	hmotnostZvoz_ += hmotnost;
+}
+
 int Vozidlo::getDlzkaTrasy()
 {
 	return trasa_->size();
@@ -77,7 +102,8 @@ Vozidlo::Vozidlo(string spz, double nosnost, double naklady, Datum datum, struct
 	datum_(datum),
 	hmotnostRozvoz_(0),
 	hmotnostZvoz_(0),
-	trasa_(trasa)	
+	trasa_(trasa),
+	zasielky_(new structures::LinkedList<Zasielka*>())
 {
 }
 
@@ -89,4 +115,9 @@ Vozidlo::~Vozidlo()
 	celkoveNaklady_ = 0;
 	delete trasa_;
 	trasa_ = nullptr;
+	for (Zasielka *zasielka : *zasielky_)
+	{
+		delete zasielka;
+	}
+	delete zasielky_;
 }
