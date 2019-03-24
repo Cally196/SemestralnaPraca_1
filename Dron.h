@@ -13,13 +13,15 @@ private:
 	std::string serioveCislo_;
 	double kapacitaBaterie_;
 	structures::LinkedList<Zasielka*> *zasielky_;
+	int casNaDobitie(int minutyNaPrekladisko);
 	
 
 public:
+	void setCasVolnyPoDobiti(int minuty);
 	structures::LinkedList<Zasielka*> *vylozZasielky(Datum datum);
 	double getKapacitaBaterie();
 	string getInfoNaZapis();
-	void pridajZasielku(Zasielka *zasielka);
+	void pridajZasielku(Zasielka *zasielka, int casNaPrekladisko);
 	Datum getCasVolny();
 	int getTyp();
 	void vypisInfo();

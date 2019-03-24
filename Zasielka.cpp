@@ -2,6 +2,21 @@
 #include "structures/heap_monitor.h"
 
 
+int Zasielka::getVzdialenostAdresata()
+{
+	return vzdialenostAdresata_;
+}
+
+void Zasielka::setVyzdvihnuta()
+{
+	vyzdvihnuta_ = true;
+}
+
+bool Zasielka::Vyzdvihnuta()
+{
+	return vyzdvihnuta_;
+}
+
 double Zasielka::getHmotnost()
 {
 	return hmotnost_;
@@ -37,7 +52,7 @@ int Zasielka::getMinutyNaLokPrekladisko()
 	return minutyNaLokPrekladisko_;
 }
 
-Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost):
+Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost, int vzdialenostAdresata):
 	cisloObjednavky_(cisloObjednavky),
 	minutyNaLokPrekladisko_(minutyNaLokPrekladisko),
 	vyzdvihnuta_(false),
@@ -48,7 +63,8 @@ Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumN
 	casNaDobitie_(0),
 	datumNaLokPrekladisko_(datumNaLokPrekladisko),
 	regionAdresata_(regionAdresata),
-	hmotnost_(hmotnost)
+	hmotnost_(hmotnost),
+	vzdialenostAdresata_(vzdialenostAdresata)
 {
 }
 

@@ -29,6 +29,8 @@ private:
 	void vylozDrony();
 	void navratVozidielDoCentralnehoSkladu();
 	void nalozenieVozidielVCentralnomSklade();
+	void transportZasielokDoLokalnychPrekladisk();
+	void naplanujRozvozZasielok();
 	void zapisDoSuboru();
 	void nacitajZoSuboru();
 

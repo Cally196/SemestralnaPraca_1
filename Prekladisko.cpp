@@ -5,6 +5,11 @@
 
 
 
+LinkedList<Zasielka*>* Prekladisko::getZasielkyNaRozvoz()
+{
+	return zasielkyNaRozvoz_;
+}
+
 LinkedList<Zasielka*>* Prekladisko::getZasielkyNaOdvoz()
 {
 	return zasielkyNaOdvoz_;
@@ -18,11 +23,18 @@ void Prekladisko::vylozDrony(Datum datum)
 
 		for (Zasielka *zasielka : *zasielky)
 		{
-			if (zasielka->getRegionAdresata() == okres_) zasielkyNaOdvoz_->add(zasielka);
-			else zasielkyNaRozvoz_->add(zasielka);
-			
-			zasielky->tryRemove(zasielka);
-			if (zasielky->size() == 0) break;
+			if (!zasielka->Vyzdvihnuta())
+			{
+				zasielka->setVyzdvihnuta();
+
+				if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka);
+				else zasielkyNaOdvoz_->add(zasielka);
+
+				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+
+				zasielky->tryRemove(zasielka);
+				if (zasielky->size() == 0) break;
+			}
 		}
 		delete zasielky;
 	}

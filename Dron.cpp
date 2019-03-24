@@ -6,6 +6,34 @@
 using namespace structures;
 using namespace std;
 
+int Dron::casNaDobitie(int minutyNaPrekladisko)
+{
+	int casNaNabitie = 0;
+
+	if (typ_ == 1)
+	{
+		casNaNabitie = (minutyNaPrekladisko * 2) / 4 * 3;
+		if (minutyNaPrekladisko % 4 != 0) casNaNabitie += 3;
+		kapacitaBaterie_ -= (minutyNaPrekladisko * 2) / 40;
+	}
+	else
+	{
+		casNaNabitie = (minutyNaPrekladisko * 2) / 6 * 5;
+		if (minutyNaPrekladisko % 6 != 0) casNaNabitie += 5;
+		kapacitaBaterie_ -= (minutyNaPrekladisko * 2) / 60;
+	}
+	casVolny_ = Datum::pridajMinuty(casVolny_, minutyNaPrekladisko * 2);
+
+
+	nalietaneMinuty_ += 2 * minutyNaPrekladisko;
+	return casNaNabitie;
+}
+
+void Dron::setCasVolnyPoDobiti(int minuty)
+{
+	casVolny_ = Datum::pridajMinuty(casVolny_, minuty);
+}
+
 structures::LinkedList<Zasielka*> *Dron::vylozZasielky(Datum datum)
 {
 	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
@@ -58,28 +86,13 @@ string Dron::getInfoNaZapis()
 	return retazec;
 }
 
-void Dron::pridajZasielku(Zasielka * zasielka)
+void Dron::pridajZasielku(Zasielka * zasielka, int casNaPrekladisko)
 {
 	zasielky_->add(zasielka);
-	int casNaNabitie = 0;
-	if (typ_ == 1)
-	{	
-		casNaNabitie = (zasielka->getMinutyNaLokPrekladisko() * 2) / 4 * 3;
-		if (zasielka->getMinutyNaLokPrekladisko() % 4 != 0) casNaNabitie += 3;
-		kapacitaBaterie_ -= (zasielka->getMinutyNaLokPrekladisko() * 2) / 40;
-	} 
-	else
-	{
-		casNaNabitie = (zasielka->getMinutyNaLokPrekladisko() * 2) / 6 * 5;
-		if (zasielka->getMinutyNaLokPrekladisko() % 6 != 0) casNaNabitie += 5;
-		kapacitaBaterie_ -= (zasielka->getMinutyNaLokPrekladisko() * 2) / 60;
-	}
-	zasielka->setCasNaDobitie(casNaNabitie);
-	casVolny_ = Datum::pridajMinuty(casVolny_, zasielka->getMinutyNaLokPrekladisko() * 2);
 	
+	int casNaNabitie = casNaDobitie(casNaPrekladisko);;
 
-	nalietaneMinuty_ += 2 * zasielka->getMinutyNaLokPrekladisko();
-
+	zasielka->setCasNaDobitie(casNaNabitie);
 }
 
 Datum Dron::getCasVolny()

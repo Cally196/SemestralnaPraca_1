@@ -12,9 +12,12 @@ private:
 	Datum datumNaLokPrekladisko_;
 	std::string regionAdresata_;
 	double hmotnost_;
-
+	double vzdialenostAdresata_;
 
 public:
+	int getVzdialenostAdresata();
+	void setVyzdvihnuta();
+	bool Vyzdvihnuta();
 	double getHmotnost();
 	std::string getRegionAdresata();
 	Datum getDatumNaLokPrekladisko();
@@ -22,7 +25,7 @@ public:
 	void setCasNaDobitie(int casNaDobitie);
 	int getCisloObjednavky();
 	int getMinutyNaLokPrekladisko();
-	Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost);
+	Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost, double vzdialenostAdresata);
 	~Zasielka();
 };
 

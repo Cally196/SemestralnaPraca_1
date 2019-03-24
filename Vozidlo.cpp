@@ -8,6 +8,16 @@
 using namespace std;
 
 
+void Vozidlo::setAktualnaHmotnost(double hmotnost)
+{
+	aktualnaHmotnost_ = hmotnost;
+}
+
+double Vozidlo::getAktualnaHmotnost()
+{
+	return aktualnaHmotnost_;
+}
+
 structures::LinkedList<Zasielka*>* Vozidlo::getZasielky()
 {
 	return zasielky_;
@@ -103,7 +113,8 @@ Vozidlo::Vozidlo(string spz, double nosnost, double naklady, Datum datum, struct
 	hmotnostRozvoz_(0),
 	hmotnostZvoz_(0),
 	trasa_(trasa),
-	zasielky_(new structures::LinkedList<Zasielka*>())
+	zasielky_(new structures::LinkedList<Zasielka*>()),
+	aktualnaHmotnost_(0)
 {
 }
 

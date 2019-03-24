@@ -159,25 +159,29 @@ void Spolocnost::navratVozidielDoCentralnehoSkladu()
 	{
 		LinkedList<Zasielka*> *zasielky = prekladisko->getZasielkyNaOdvoz();
 
-		for (Vozidlo *vozidlo : *vozidla_)
+		if (!zasielky->isEmpty())
 		{
-			int pocetObsluzenychPrekladisk = 0;
-			if (vozidlo->patriRegionu(prekladisko->getOkres()))
+			for (Vozidlo *vozidlo : *vozidla_)
 			{
-				double hmotnost = 0;
-				vozidlo->setCelkoveNaklady(1);
-				for (Zasielka *zasielka : *zasielky)
+				//int pocetObsluzenychPrekladisk = 0;
+				if (vozidlo->patriRegionu(prekladisko->getOkres()))
 				{
-					if (vozidlo->getNosnost() <= hmotnost + zasielka->getHmotnost() / 1000)
+					//double hmotnost = 0;
+					vozidlo->setCelkoveNaklady(1);
+					for (Zasielka *zasielka : *zasielky)
 					{
-						vozidlo->pridajZasielkuNaRozvoz(zasielka);
-						hmotnost += zasielka->getHmotnost() / 1000;
-						zasielky->tryRemove(zasielka);
-						if (zasielky->isEmpty()) break;
+						if (vozidlo->getNosnost() >= (vozidlo->getAktualnaHmotnost() + (zasielka->getHmotnost() / 1000)))
+						{
+							vozidlo->pridajZasielkuNaRozvoz(zasielka);
+							vozidlo->setAktualnaHmotnost(vozidlo->getAktualnaHmotnost() + (zasielka->getHmotnost() / 1000));
+							//hmotnost += zasielka->getHmotnost() / 1000;
+							zasielky->tryRemove(zasielka);
+							if (zasielky->isEmpty()) break;
+						}
+						else break;
 					}
-					else break;
+					if (zasielky->isEmpty()) break;
 				}
-				if (zasielky->isEmpty()) break;
 			}
 		}
 	}
@@ -195,6 +199,7 @@ void Spolocnost::navratVozidielDoCentralnehoSkladu()
 
 	for (Vozidlo *vozidlo : *vozidla_)
 	{
+		vozidlo->setAktualnaHmotnost(0);
 		LinkedList<Zasielka*> *zasielky = vozidlo->getZasielky();
 
 		for (Zasielka *zasielka : *zasielky)
@@ -226,19 +231,84 @@ void Spolocnost::nalozenieVozidielVCentralnomSklade()
 	{
 		if (zasielka->getRegionAdresata() == "ZA")
 		{
-			//TODO ak je zasielka posielana do ZA
+			centralknePrekladisko->getZasielkyNaRozvoz()->add(zasielka);
 		}
-		for (Vozidlo *vozdilo : *vozidla_)
+		else
 		{
-			if (vozdilo->patriRegionu(zasielka->getRegionAdresata()))
+			for (Vozidlo *vozdilo : *vozidla_)
 			{
-				vozdilo->pridajZasielkuNaRozvoz(zasielka);
-				zasielky->tryRemove(zasielka);
+				if (vozdilo->patriRegionu(zasielka->getRegionAdresata()))
+				{
+					if (vozdilo->getNosnost() >= (vozdilo->getAktualnaHmotnost() + (zasielka->getHmotnost() / 1000)))
+					{
+						vozdilo->pridajZasielkuNaRozvoz(zasielka);
+						zasielky->tryRemove(zasielka);
+						vozdilo->setAktualnaHmotnost(vozdilo->getAktualnaHmotnost() + (zasielka->getHmotnost() / 1000));
+					}
+				}
+				if (zasielky->isEmpty()) break;
+			}
+		}
+		if (zasielky->isEmpty()) break;
+	}
+
+
+}
+
+void Spolocnost::transportZasielokDoLokalnychPrekladisk()
+{
+	for (Vozidlo *vozidlo : *vozidla_)
+	{
+		if (!vozidlo->getZasielky()->isEmpty())
+		{
+			for (Zasielka *zasielka : *vozidlo->getZasielky())
+			{
+				for (Prekladisko *prekladisko : *prekladiska_)
+				{
+					if (prekladisko->getOkres() == zasielka->getRegionAdresata())
+					{
+						prekladisko->getZasielkyNaRozvoz()->add(zasielka);
+						vozidlo->getZasielky()->tryRemove(zasielka);
+						break;
+					}
+
+				}
+				if (vozidlo->getZasielky()->isEmpty()) break;
 			}
 		}
 	}
 
+}
 
+void Spolocnost::naplanujRozvozZasielok()
+{
+	
+	int minutyNaPrekladisko = 0;
+
+	for (Prekladisko *prekladisko : *prekladiska_)
+	{
+		for (Zasielka *zasielka : *prekladisko->getZasielkyNaRozvoz())
+		{
+			Dron *dostupnyDron = getDostupnyDron(zasielka->getHmotnost(), prekladisko);
+
+			if (dostupnyDron->getTyp() == 1)
+			{
+				minutyNaPrekladisko = 0.75 * zasielka->getVzdialenostAdresata() + 1;
+
+			}
+			else {
+				minutyNaPrekladisko = 1.5 * zasielka->getVzdialenostAdresata() + 1;
+
+			}
+
+
+			dostupnyDron->pridajZasielku(zasielka, minutyNaPrekladisko);
+
+			prekladisko->getZasielkyNaRozvoz()->tryRemove(zasielka);
+
+			if (prekladisko->getZasielkyNaRozvoz()->isEmpty()) break;
+		}
+	}
 }
 
 void Spolocnost::zapisDoSuboru()
@@ -313,7 +383,7 @@ void Spolocnost::nacitajZoSuboru()
 			for (int k = 0; k < zasielky; k++)
 			{
 				citac >> cisloOnjednavky >> minNaLokPrekladisko;
-				Zasielka *zasielka = new Zasielka(cisloOnjednavky, minNaLokPrekladisko, datum_, okres, 5); // TODO
+				Zasielka *zasielka = new Zasielka(cisloOnjednavky, minNaLokPrekladisko, datum_, okres, 5, 0); // TODO
 				zasielky_->add(zasielka);
 			}			
 			Dron *dron = new Dron(typ, serioveCislo, datum_, nalietaneMinuty, pocPrepravenychZasielok, kapacitaBaterie, zasielky_);
@@ -354,6 +424,9 @@ void Spolocnost::vyber()
 			if (datum_.getHodina() == 7)
 			{
 				navratVozidielDoCentralnehoSkladu();
+				nalozenieVozidielVCentralnomSklade();
+				transportZasielokDoLokalnychPrekladisk();
+				naplanujRozvozZasielok();
 			}
 			break;
 		}
@@ -480,7 +553,7 @@ void Spolocnost::vyber()
 			} while (true);
 
 			cout << "Zadajtie vzdialenot odosielatela od prekladiska[km]\n";
-			cin >> vzdialenostOodosielatela;
+			vzdialenostOodosielatela = skontrolujInt();
 
 			do
 			{
@@ -493,7 +566,7 @@ void Spolocnost::vyber()
 			} while (true);
 
 			cout << "Zadajte vzdialenost adresata od prekladiska[km]\n";
-			cin >> vzdialenostAdresata;
+			vzdialenostAdresata = skontrolujInt();
 
 			int minutyNaLokPrekladisko = 0;
 			int minutyNaDobitie = 0;
@@ -582,10 +655,10 @@ void Spolocnost::vyber()
 							if (potvrdObjednavku)
 							{
 								Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata, cisloObjednavky);
-								Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko, Datum::pridajMinuty(datum_, minutyNaLokPrekladisko * 2), regionAdresata, hmotnost);
+								Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko, Datum::pridajMinuty(datum_, minutyNaLokPrekladisko * 2), regionAdresata, hmotnost, vzdialenostAdresata);
 								cisloObjednavky++;
 								objednavky_->add(objednavka);
-								dostupnyDron->pridajZasielku(zasielka);
+								dostupnyDron->pridajZasielku(zasielka, minutyNaLokPrekladisko);
 								vozidloZvoz->setHmotnostZvoz(hmotnost);
 								vozidloOdvoz->setHmotnostRozvoz(hmotnost);
 								cout << "\nObjednavka bola prijata\n";

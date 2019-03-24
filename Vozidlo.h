@@ -16,11 +16,13 @@ private:
 	double naklady_;
 	double celkoveNaklady_;
 	Datum datum_;
-	double hmotnostZvoz_, hmotnostRozvoz_;
+	double hmotnostZvoz_, hmotnostRozvoz_, aktualnaHmotnost_;
 	structures::LinkedList<Zasielka*> *zasielky_;
 
 	
 public:
+	void setAktualnaHmotnost(double hmotnost);
+	double getAktualnaHmotnost();
 	structures::LinkedList<Zasielka*>* getZasielky();
 	void setCelkoveNaklady(int pocetPrekldisk);
 	void pridajZasielkuNaRozvoz(Zasielka *zasielka);
