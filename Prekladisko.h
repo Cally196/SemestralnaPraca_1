@@ -19,6 +19,7 @@ private:
 	LinkedList<Zasielka*> *zasielkyNaRozvoz_;
 
 public:
+	void dorucZasielky(Datum datum);
 	LinkedList<Zasielka*>* getZasielkyNaRozvoz();
 	LinkedList<Zasielka*>* getZasielkyNaOdvoz();
 	void vylozDrony(Datum datum);

@@ -9,12 +9,14 @@ private:
 	bool vyzdvihnuta_, lokPrekladisko_, cenSklad_, lokprekladisko2_, dorucena_;
 	int minutyNaLokPrekladisko_;
 	int cisloObjednavky_, casNaDobitie_;
-	Datum datumNaLokPrekladisko_;
+	Datum datumNaLokPrekladisko_, datumAdresat_;
 	std::string regionAdresata_;
 	double hmotnost_;
 	double vzdialenostAdresata_;
 
 public:
+	Datum getDatumAdresat();
+	void setDatumAdresat(Datum datum);
 	int getVzdialenostAdresata();
 	void setVyzdvihnuta();
 	bool Vyzdvihnuta();

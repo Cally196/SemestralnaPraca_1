@@ -169,7 +169,7 @@ void Spolocnost::navratVozidielDoCentralnehoSkladu()
 					//double hmotnost = 0;
 					vozidlo->setCelkoveNaklady(1);
 					for (Zasielka *zasielka : *zasielky)
-					{
+					{						
 						if (vozidlo->getNosnost() >= (vozidlo->getAktualnaHmotnost() + (zasielka->getHmotnost() / 1000)))
 						{
 							vozidlo->pridajZasielkuNaRozvoz(zasielka);
@@ -301,6 +301,7 @@ void Spolocnost::naplanujRozvozZasielok()
 
 			}
 
+			zasielka->setDatumAdresat(Datum::pridajMinuty(datum_, minutyNaPrekladisko));
 
 			dostupnyDron->pridajZasielku(zasielka, minutyNaPrekladisko);
 
@@ -309,6 +310,15 @@ void Spolocnost::naplanujRozvozZasielok()
 			if (prekladisko->getZasielkyNaRozvoz()->isEmpty()) break;
 		}
 	}
+}
+
+void Spolocnost::dorucZasielky()
+{
+	for (Prekladisko *prekladisko : *prekladiska_)
+	{
+		prekladisko->dorucZasielky(datum_);
+	}
+
 }
 
 void Spolocnost::zapisDoSuboru()
@@ -427,6 +437,11 @@ void Spolocnost::vyber()
 				nalozenieVozidielVCentralnomSklade();
 				transportZasielokDoLokalnychPrekladisk();
 				naplanujRozvozZasielok();
+			}
+			if (datum_.getHodina() == 8)
+			{
+				dorucZasielky();
+
 			}
 			break;
 		}
@@ -655,7 +670,7 @@ void Spolocnost::vyber()
 							if (potvrdObjednavku)
 							{
 								Objednavka *objednavka = new Objednavka(hmotnost, regionOdosielatela, vzdialenostOodosielatela, regionAdresata, vzdialenostAdresata, cisloObjednavky);
-								Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko, Datum::pridajMinuty(datum_, minutyNaLokPrekladisko * 2), regionAdresata, hmotnost, vzdialenostAdresata);
+								Zasielka *zasielka = new Zasielka(cisloObjednavky, minutyNaLokPrekladisko, Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko), regionAdresata, hmotnost, vzdialenostAdresata);
 								cisloObjednavky++;
 								objednavky_->add(objednavka);
 								dostupnyDron->pridajZasielku(zasielka, minutyNaLokPrekladisko);

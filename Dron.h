@@ -17,6 +17,8 @@ private:
 	
 
 public:
+	structures::LinkedList<Zasielka*> *dorucZasielky(Datum datum);
+	void setKapacitaBaterie(double kapacitaBaterie);
 	void setCasVolnyPoDobiti(int minuty);
 	structures::LinkedList<Zasielka*> *vylozZasielky(Datum datum);
 	double getKapacitaBaterie();

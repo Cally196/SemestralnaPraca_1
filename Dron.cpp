@@ -29,6 +29,29 @@ int Dron::casNaDobitie(int minutyNaPrekladisko)
 	return casNaNabitie;
 }
 
+structures::LinkedList<Zasielka*>* Dron::dorucZasielky(Datum datum)
+{
+	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
+
+
+	for (Zasielka *zasielka : *zasielky_)
+	{
+		if (zasielka->getDatumAdresat() < datum)
+		{
+			zasielky->add(zasielka);
+			zasielky_->tryRemove(zasielka);
+			//delete zasielka;
+		}
+		if (zasielky_->size() == 0) break;
+	}
+	return zasielky;
+}
+
+void Dron::setKapacitaBaterie(double kapacitaBaterie)
+{
+	kapacitaBaterie_ = kapacitaBaterie;
+}
+
 void Dron::setCasVolnyPoDobiti(int minuty)
 {
 	casVolny_ = Datum::pridajMinuty(casVolny_, minuty);

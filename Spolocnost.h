@@ -31,6 +31,7 @@ private:
 	void nalozenieVozidielVCentralnomSklade();
 	void transportZasielokDoLokalnychPrekladisk();
 	void naplanujRozvozZasielok();
+	void dorucZasielky();
 	void zapisDoSuboru();
 	void nacitajZoSuboru();
 

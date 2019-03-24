@@ -1,6 +1,17 @@
 #include "Zasielka.h"
 #include "structures/heap_monitor.h"
+#include "Datum.h"
 
+
+Datum Zasielka::getDatumAdresat()
+{
+	return datumAdresat_;
+}
+
+void Zasielka::setDatumAdresat(Datum datum)
+{
+	datumAdresat_ = datum;
+}
 
 int Zasielka::getVzdialenostAdresata()
 {
@@ -52,7 +63,7 @@ int Zasielka::getMinutyNaLokPrekladisko()
 	return minutyNaLokPrekladisko_;
 }
 
-Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost, int vzdialenostAdresata):
+Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost, double vzdialenostAdresata):
 	cisloObjednavky_(cisloObjednavky),
 	minutyNaLokPrekladisko_(minutyNaLokPrekladisko),
 	vyzdvihnuta_(false),
@@ -64,7 +75,8 @@ Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumN
 	datumNaLokPrekladisko_(datumNaLokPrekladisko),
 	regionAdresata_(regionAdresata),
 	hmotnost_(hmotnost),
-	vzdialenostAdresata_(vzdialenostAdresata)
+	vzdialenostAdresata_(vzdialenostAdresata),
+	datumAdresat_(Datum(1, 1, 1))
 {
 }
 

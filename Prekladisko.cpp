@@ -5,6 +5,28 @@
 
 
 
+void Prekladisko::dorucZasielky(Datum datum)
+{
+	for (Dron *dron : *drony_)
+	{
+		LinkedList<Zasielka*> *zasielky = dron->dorucZasielky(datum);
+		if (!zasielky->isEmpty())
+		{
+			for (Zasielka *zasielka : *zasielky)
+			{
+				if (zasielka->Vyzdvihnuta())
+				{
+					dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+
+					zasielky->tryRemove(zasielka);
+					delete zasielka;
+					if (zasielky->size() == 0) break;
+				}
+			}
+		}
+	}
+}
+
 LinkedList<Zasielka*>* Prekladisko::getZasielkyNaRozvoz()
 {
 	return zasielkyNaRozvoz_;
@@ -19,6 +41,7 @@ void Prekladisko::vylozDrony(Datum datum)
 {
 	for (Dron *dron : *drony_)
 	{
+		dron->setKapacitaBaterie(1);
 		LinkedList<Zasielka*> *zasielky = dron->vylozZasielky(datum);
 
 		for (Zasielka *zasielka : *zasielky)
