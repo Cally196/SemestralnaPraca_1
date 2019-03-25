@@ -3,6 +3,52 @@
 
 
 
+int Objednavka::getCisloObjednavky()
+{
+	return cisloObjednavky_;
+}
+
+string Objednavka::getRegionOdosielatela()
+{
+	return odosielatelRegion_;
+}
+
+Datum Objednavka::getDatum()
+{
+	return datumVytvorenia_;
+}
+
+string Objednavka::getObjednavkaZapis()
+{
+	string retazec = " ";
+
+	retazec += to_string(hmotnostZasielky_);
+	retazec += " ";
+
+	retazec += odosielatelRegion_;
+	retazec += " ";
+
+	retazec += adresatRegion_;
+	retazec += " ";
+
+	retazec += to_string(vzdialenostOdosielatela_);
+	retazec += " ";
+
+	retazec += to_string(vzdialenostAdresata_);
+	retazec += " ";
+
+	retazec += to_string(cisloObjednavky_);
+	retazec += " ";
+
+	retazec += to_string(kod_);
+	retazec += " ";
+
+	retazec += datumVytvorenia_.naZapis();
+	retazec += " ";
+
+	return retazec;
+}
+
 int Objednavka::getKod()
 {
 	return kod_;

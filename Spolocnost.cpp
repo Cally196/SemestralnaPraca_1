@@ -596,6 +596,20 @@ void Spolocnost::dorucZasielky()
 
 void Spolocnost::vypisStatistiky()
 {
+	int minuty, hodiny, dni, pocetZrusenychObjednavok = 0;
+	string region;
+
+	cout << "\nZadaj zaciatok sledovaneho obdobia v tvare MM HH DD\n";
+	cin >> minuty >> hodiny >> dni;
+	Datum zacDatum = Datum(hodiny, minuty, dni);
+
+	cout << "\nZadaj koniec sledovaneho obdobia v tvare MM HH DD\n";
+	cin >> minuty >> hodiny >> dni;
+	Datum konDatum = Datum(hodiny, minuty, dni);
+
+	cout << "Zadajte sledovany region:\n";
+	cin >> region;
+
 	Prekladisko *maxDorucenych = (*prekladiska_)[0];
 	Prekladisko *maxOdoslanych = (*prekladiska_)[0];
 	int celkovyPocetDorucenychObjednavok = 0;
@@ -606,7 +620,7 @@ void Spolocnost::vypisStatistiky()
 		pocetNajazdenychKilometrov += (vozidlo->getCelkoveNaklady() / vozidlo->getNaklady()) / 2;
 	}
 
-	cout << "Nalietane hodiny dronov podla typu v prekladiskach:" << endl << endl;
+	cout << "\n\nNalietane hodiny dronov podla typu v prekladiskach:" << endl << endl;
 	cout << setw(20) << left << "Prekladisko";
 	cout << setw(20) << left << "Drony typu 1";
 	cout << setw(20) << left << "Drony typu 2" << endl;
@@ -635,6 +649,45 @@ void Spolocnost::vypisStatistiky()
 	cout << "\nNajviac odoslanych zasielok bolo z regionu: " << maxOdoslanych->getOkres() << " (" << maxOdoslanych->getPocetOdoslanych() << ")\n";
 	cout << "\nCelkovy pocet dorucenych zasielok: " << celkovyPocetDorucenychObjednavok << endl;
 	cout << "\nCelkovy pocet najazdenych kilometrov vozidiel: " << pocetNajazdenychKilometrov * 50 << endl;
+
+	cout << "\nObjednavku ktore boli v zadanom casovom obdobi zamietnute:\n";
+
+	cout << setw(20) << left << "Cislo objednavky";
+	cout << setw(20) << left << "Dovod zamietnutia" << endl;
+
+	for (Objednavka *objednavka : *objednavky_)
+	{
+		if (objednavka->getDatum() < konDatum && zacDatum < objednavka->getDatum() && objednavka->getRegionOdosielatela() == region)
+		{
+			if (objednavka->getKod() == 5) pocetZrusenychObjednavok++;
+			if (objednavka->getKod() > 0 && objednavka->getKod() < 5)
+			{
+				switch (objednavka->getKod())
+				{
+				case 1:
+					cout << setw(20) << left << objednavka->getCisloObjednavky();
+					cout << setw(20) << left << "Objednavka bola zamietnuta pretoze je mimo akcny radius dronov." << endl;
+					break;
+
+				case 2:
+					cout << setw(20) << left << objednavka->getCisloObjednavky();
+					cout << setw(20) << left << "Objednavka bola zamietnuta pretoze jej hmotnost je prilis vysoka." << endl;
+
+				case 3:
+					cout << setw(20) << left << objednavka->getCisloObjednavky();
+					cout << setw(20) << left << "Objednavka bola zamietnuta pretoze nalozenie zasielky do auta by prekrocilo jeho nosnost." << endl;
+					break;
+
+				case 4:
+					cout << setw(20) << left << objednavka->getCisloObjednavky();
+					cout << setw(20) << left << "Objednavka bola zamietnuta z dovodu neskoreho casu vyzdvihnutia." << endl;
+				}
+			}
+		}
+		else cout << "\nV zadanom okrese alebo casovom obdobi sa nenasli ziadne zamietnute zasielky.\n";
+	}
+
+	cout << "\nPocet zrusenych objednavok v regione " << region << " za zadane casove obdobie je: " << pocetZrusenychObjednavok << ".\n";
 }
 
 void Spolocnost::zapisDoSuboru()
@@ -688,8 +741,14 @@ void Spolocnost::zapisDoSuboru()
 			}
 		}
 
+		//objednavky
 
+		zapis << objednavky_->size() << endl;
 
+		for (Objednavka *objednavka : *objednavky_)
+		{
+			zapis << objednavka->getObjednavkaZapis();
+		}
 	}
 }
 
@@ -697,10 +756,10 @@ void Spolocnost::nacitajZoSuboru()
 {
 	ifstream citac;
 	citac.open("save.txt");
-	int vozidla, dlzkaTrasy, prekladiska, drony, typ, nalietaneMinuty, pocPrepravenychZasielok, zasielky, cisloOnjednavky, minNaLokPrekladisko;
+	int vozidla, dlzkaTrasy, prekladiska, drony, typ, nalietaneMinuty, pocPrepravenychZasielok, pocetZasielok;
 	string spz, okres, serioveCislo, regionAdresata;
 	double nosnost, naklady, celkoveNaklady, maxHmotnost, kapacitaBaterie, hmotnostZvoz, hmotnostRozvoz, aktualnaHmotnost, hmotnost, vzdialenostAdresata;
-	int minuty, hodiny, dni, pocetZasielok, minutyNaLokPrekladisko, cisloObjednavky, casNaDobitie, pomBool, pocetDorucenychZasielok, pocetOdoslanychZasielok;
+	int minuty, hodiny, dni, minutyNaLokPrekladisko, cisloObjednavky, casNaDobitie, pomBool, pocetDorucenychZasielok, pocetOdoslanychZasielok;
 	
 	bool vyzdvihnuta;
 
@@ -744,6 +803,7 @@ void Spolocnost::nacitajZoSuboru()
 
 
 	//prekladiska
+	int garbage;
 	for (Prekladisko *prekladisko : *prekladiska_)
 	{
 		delete prekladisko;
@@ -758,17 +818,17 @@ void Spolocnost::nacitajZoSuboru()
 		ArrayList<Dron*> *drony_ = new ArrayList<Dron*>();
 		LinkedList<Zasielka*> *zasielkyNaOdvoz = new LinkedList<Zasielka*>();
 		LinkedList<Zasielka*> *zasielkyNaRozvoz = new LinkedList<Zasielka*>();
-
+		if (drony == 0) citac >> garbage >> garbage;
 		for (int j = 0; j < drony; j++)
 		{
 			citac >> typ >> nalietaneMinuty >> pocPrepravenychZasielok >> minuty >> hodiny >> dni;
 			Datum datumZaradenia = Datum(hodiny, minuty, dni);
-			citac >> minuty >> hodiny >> dni >> serioveCislo >> kapacitaBaterie >> zasielky;
+			citac >> minuty >> hodiny >> dni >> serioveCislo >> kapacitaBaterie >> pocetZasielok;
 			Datum casVolny = Datum(hodiny, dni, minuty);
 
 			LinkedList<Zasielka*> *zasielky_ = new LinkedList<Zasielka*>();	
-
-			for (int k = 0; k < zasielky; k++)
+			if (pocetZasielok == 0) citac >> garbage;
+			for (int k = 0; k < pocetZasielok; k++)
 			{
 				citac >> pomBool;
 				if (pomBool == 1) vyzdvihnuta = true;
@@ -784,9 +844,9 @@ void Spolocnost::nacitajZoSuboru()
 			Dron *dron = new Dron(typ, nalietaneMinuty, pocPrepravenychZasielok, datumZaradenia, casVolny, serioveCislo, kapacitaBaterie, zasielky_);
 			drony_->add(dron);
 			
-			citac >> zasielky;
+			citac >> pocetZasielok;
 
-			for (int k = 0; k < zasielky; k++)
+			for (int k = 0; k < pocetZasielok; k++)
 			{
 				citac >> pomBool;
 				if (pomBool == 1) vyzdvihnuta = true;
@@ -800,9 +860,9 @@ void Spolocnost::nacitajZoSuboru()
 				zasielkyNaOdvoz->add(zasielka);
 			}
 			
-			citac >> zasielky;
+			citac >> pocetZasielok;
 
-			for (int k = 0; k < zasielky; k++)
+			for (int k = 0; k < pocetZasielok; k++)
 			{
 				citac >> pomBool;
 				if (pomBool == 1) vyzdvihnuta = true;
@@ -819,8 +879,26 @@ void Spolocnost::nacitajZoSuboru()
 	
 		Prekladisko *prekladisko_ = new Prekladisko(okres, maxHmotnost, pocetDorucenychZasielok, pocetOdoslanychZasielok, drony_, zasielkyNaOdvoz, zasielkyNaRozvoz);
 		prekladiska_->add(prekladisko_);
-
 	}
+
+
+	//objednavky
+
+	int pocetObjednavok, kod;
+	string odosielatelRegion, adresatRegion;
+	double hmotnostZasielky, vzdialenostOdosielatela;
+
+	citac >> pocetObjednavok;
+
+	for (int i = 0; i < pocetObjednavok; i++)
+	{
+		citac >> hmotnostZasielky >> odosielatelRegion >> adresatRegion >> vzdialenostOdosielatela >>
+			vzdialenostAdresata >> cisloObjednavky >> kod >> minuty >> hodiny >> dni;
+		Datum datumVytvorenia = Datum(hodiny, minuty, dni);
+		Objednavka *objednavka = new Objednavka(hmotnostZasielky, odosielatelRegion, vzdialenostOdosielatela, adresatRegion, vzdialenostAdresata, cisloObjednavky, kod, datumVytvorenia);
+		objednavky_->add(objednavka);
+	}
+
 }
 
 

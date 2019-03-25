@@ -14,6 +14,10 @@ private:
 	Datum datumVytvorenia_;
 
 public:
+	int getCisloObjednavky();
+	string getRegionOdosielatela();
+	Datum getDatum();
+	string getObjednavkaZapis();
 	int getKod();
 	Objednavka(double hmotnost, std::string reg1, double vzdia1, std::string reg2, double vzdia2, int cisloObjednavky, int kod_, Datum datum);
 	~Objednavka();
