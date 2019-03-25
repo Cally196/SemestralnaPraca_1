@@ -5,6 +5,16 @@
 
 
 
+int Prekladisko::getPocetDorucenych()
+{
+	return pocetDorucenychZasielok_;
+}
+
+int Prekladisko::getPocetOdoslanych()
+{
+	return pocetOdoslanychZasielok_;
+}
+
 void Prekladisko::dorucZasielky(Datum datum)
 {
 	for (Dron *dron : *drony_)
@@ -14,16 +24,22 @@ void Prekladisko::dorucZasielky(Datum datum)
 		{
 			for (Zasielka *zasielka : *zasielky)
 			{
-				if (zasielka->Vyzdvihnuta())
-				{
+				//if (zasielka->Vyzdvihnuta())
+				//{
 					dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+					pocetDorucenychZasielok_++;
 
 					zasielky->tryRemove(zasielka);
 					delete zasielka;
-					if (zasielky->size() == 0) break;
-				}
+					if (zasielky->size() == 0) 
+					{
+						delete zasielky;
+						break;
+					}
+				//}
 			}
 		}
+		else delete zasielky;
 	}
 }
 
@@ -41,14 +57,15 @@ void Prekladisko::vylozDrony(Datum datum)
 {
 	for (Dron *dron : *drony_)
 	{
-		dron->setKapacitaBaterie(1);
+		//dron->setKapacitaBaterie(1);
 		LinkedList<Zasielka*> *zasielky = dron->vylozZasielky(datum);
 
 		for (Zasielka *zasielka : *zasielky)
 		{
-			if (!zasielka->Vyzdvihnuta())
-			{
+			//if (!zasielka->Vyzdvihnuta())
+			//{
 				zasielka->setVyzdvihnuta();
+				pocetOdoslanychZasielok_++;
 
 				if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka);
 				else zasielkyNaOdvoz_->add(zasielka);
@@ -57,7 +74,7 @@ void Prekladisko::vylozDrony(Datum datum)
 
 				zasielky->tryRemove(zasielka);
 				if (zasielky->size() == 0) break;
-			}
+			//}
 		}
 		delete zasielky;
 	}
@@ -229,12 +246,14 @@ string Prekladisko::getOkres()
 	return okres_;
 }
 
-Prekladisko::Prekladisko(string okres, double maxHmotnost, ArrayList<Dron*> *drony):
+Prekladisko::Prekladisko(string okres, double maxHmotnost, int pocetDorucenychZasielok, int pocetOdoslanychZasielok, ArrayList<Dron*> *drony, LinkedList<Zasielka*> *zasielkyNaOdvoz, LinkedList<Zasielka*> *zasielkyNaRozvoz) :
 	okres_(okres),
-	drony_(drony), 
 	maxHmotnost_(maxHmotnost),
-	zasielkyNaOdvoz_(new LinkedList<Zasielka*>()),
-	zasielkyNaRozvoz_(new LinkedList<Zasielka*>())
+	pocetDorucenychZasielok_(pocetDorucenychZasielok),
+	pocetOdoslanychZasielok_(pocetOdoslanychZasielok),
+	drony_(drony), 
+	zasielkyNaOdvoz_(zasielkyNaOdvoz),
+	zasielkyNaRozvoz_(zasielkyNaRozvoz)
 {
 }
 
@@ -243,7 +262,9 @@ Prekladisko::Prekladisko(string okres):
 	drony_(new ArrayList<Dron*>()),
 	maxHmotnost_(0),
 	zasielkyNaOdvoz_(new LinkedList<Zasielka*>()),
-	zasielkyNaRozvoz_(new LinkedList<Zasielka*>())
+	zasielkyNaRozvoz_(new LinkedList<Zasielka*>()),
+	pocetDorucenychZasielok_(0),
+	pocetOdoslanychZasielok_(0)
 {
 }
 

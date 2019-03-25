@@ -6,7 +6,7 @@
 class Zasielka
 {
 private:
-	bool vyzdvihnuta_, lokPrekladisko_, cenSklad_, lokprekladisko2_, dorucena_;
+	bool vyzdvihnuta_;
 	int minutyNaLokPrekladisko_;
 	int cisloObjednavky_, casNaDobitie_;
 	Datum datumNaLokPrekladisko_, datumAdresat_;
@@ -15,6 +15,7 @@ private:
 	double vzdialenostAdresata_;
 
 public:
+	string getZasielkaZapis();
 	Datum getDatumAdresat();
 	void setDatumAdresat(Datum datum);
 	int getVzdialenostAdresata();
@@ -27,6 +28,7 @@ public:
 	void setCasNaDobitie(int casNaDobitie);
 	int getCisloObjednavky();
 	int getMinutyNaLokPrekladisko();
+	Zasielka(bool vyzdvihnuta, int minutyNaLokPrekladisko, int cisloObjednavky, int casNaDobitie, Datum datNaLokPrekladisko, Datum datumAdresat, std::string regionAdresata, double hmotnost, double vzdialenostAdresata);
 	Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost, double vzdialenostAdresata);
 	~Zasielka();
 };

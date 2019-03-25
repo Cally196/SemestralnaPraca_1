@@ -4,6 +4,22 @@
 using namespace std;
 
 
+string Datum::naZapis()
+{
+	string trasa;
+	
+	trasa += " ";
+	trasa += to_string(minuta_);
+	trasa += " ";
+	trasa += to_string(hodina_);
+	trasa += " ";
+	trasa += to_string(den_);
+	
+	trasa += " ";
+	return trasa;
+
+}
+
 int Datum::getHodina()
 {
 	return hodina_;

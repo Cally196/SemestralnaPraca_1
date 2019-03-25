@@ -10,17 +10,21 @@ using namespace std;
 class Vozidlo
 {
 private:
-	structures::LinkedList<string> *trasa_;
 	std::string spz_;
 	double nosnost_;
 	double naklady_;
 	double celkoveNaklady_;
 	Datum datum_;
 	double hmotnostZvoz_, hmotnostRozvoz_, aktualnaHmotnost_;
+
+	structures::LinkedList<string> *trasa_;
 	structures::LinkedList<Zasielka*> *zasielky_;
 
 	
 public:
+	string getZasielkyZapis();
+	Datum getDatumPridania();
+	double getCelkoveNaklady();
 	void setAktualnaHmotnost(double hmotnost);
 	double getAktualnaHmotnost();
 	structures::LinkedList<Zasielka*>* getZasielky();
@@ -37,6 +41,7 @@ public:
 	double getHmotnostRozvoz();
 	bool patriRegionu(string region);
 	void vypisInfo();
+	Vozidlo(string spz, double nosnost, double naklady, double celkoveNaklady, Datum datum, double hmotnostZvoz, double hmotnostRozvoz, double aktualnaHmotnost, structures::LinkedList<string> *trasa, structures::LinkedList<Zasielka*> *zasielky);
 	Vozidlo(string spz, double nosnost, double naklady, Datum datum, structures::LinkedList<string> *trasa);
 	~Vozidlo();
 };

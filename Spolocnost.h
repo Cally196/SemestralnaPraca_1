@@ -17,6 +17,9 @@ private:
 	ArrayList<Vozidlo*> *vozidla_;
 	ArrayList<Prekladisko*> *prekladiska_;
 	ArrayList<Objednavka*> *objednavky_;
+	
+
+
 	void vypisMenu();
 	int skontrolujInt();
 	Prekladisko* getPrekladisko(string okres);
@@ -26,14 +29,21 @@ private:
 	Vozidlo* overNosnostAutaRozvoz(string okres, double hmotnost);
 	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko);
 	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko, Dron *dron);
+	void pridajVozidlo();
+	void vypisVozidla();
+	void pridajDronDoPrekladiska();
+	void vypisDronyVPrekladisku();
+	void pridajObjednavku(int cisloObjednavky);
 	void vylozDrony();
 	void navratVozidielDoCentralnehoSkladu();
 	void nalozenieVozidielVCentralnomSklade();
 	void transportZasielokDoLokalnychPrekladisk();
 	void naplanujRozvozZasielok();
 	void dorucZasielky();
+	void vypisStatistiky();
 	void zapisDoSuboru();
 	void nacitajZoSuboru();
+
 
 public:
 	void vyber();

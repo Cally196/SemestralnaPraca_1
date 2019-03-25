@@ -10,6 +10,7 @@ private:
 	int minuta_, hodina_, den_;
 
 public:
+	string naZapis();
 	int getHodina();
 	static Datum pridajMinuty(Datum &datum, int minuty);
 	static Datum posunOHodinu(Datum &datum);

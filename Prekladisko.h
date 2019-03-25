@@ -13,12 +13,16 @@ class Prekladisko
 {
 private:
 	string okres_;
-	ArrayList<Dron*> *drony_;
 	double maxHmotnost_;
+	int pocetDorucenychZasielok_, pocetOdoslanychZasielok_;
+
+	ArrayList<Dron*> *drony_;
 	LinkedList<Zasielka*> *zasielkyNaOdvoz_;
 	LinkedList<Zasielka*> *zasielkyNaRozvoz_;
 
 public:
+	int getPocetDorucenych();
+	int getPocetOdoslanych();
 	void dorucZasielky(Datum datum);
 	LinkedList<Zasielka*>* getZasielkyNaRozvoz();
 	LinkedList<Zasielka*>* getZasielkyNaOdvoz();
@@ -31,7 +35,7 @@ public:
 	void VypisDrony();
 	void pridajDron(Dron *dron);
 	string getOkres();
-	Prekladisko(string okres, double maxHmotnost, ArrayList<Dron*> *drony);
+	Prekladisko(string okres, double maxHmotnost, int pocetDorucenychZasielok, int pocetOdoslanychZasielok, ArrayList<Dron*> *drony, LinkedList<Zasielka*> *zasielkyNaOdvoz, LinkedList<Zasielka*> *zasielkyNaRozvoz);
 	Prekladisko(string okres);
 	~Prekladisko();
 };

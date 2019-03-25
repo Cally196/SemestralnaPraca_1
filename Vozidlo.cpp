@@ -8,6 +8,28 @@
 using namespace std;
 
 
+string Vozidlo::getZasielkyZapis()
+{
+	string trasa;
+
+	for (Zasielka *zasielka : *zasielky_)
+	{
+		trasa += zasielka->getZasielkaZapis();
+	}
+	trasa += " ";
+	return trasa;	
+}
+
+Datum Vozidlo::getDatumPridania()
+{
+	return datum_;
+}
+
+double Vozidlo::getCelkoveNaklady()
+{
+	return celkoveNaklady_;
+}
+
 void Vozidlo::setAktualnaHmotnost(double hmotnost)
 {
 	aktualnaHmotnost_ = hmotnost;
@@ -99,9 +121,23 @@ void Vozidlo::vypisInfo()
 {
 	cout << setw(20) << left << spz_;
 	cout << setw(20) << left << to_string(nosnost_);
-	cout << setw(20) << left << to_string(naklady_);
+	cout << setw(20) << left << to_string(celkoveNaklady_);
 	cout << setw(20) << left << datum_.toString();
 	cout << endl;
+}
+
+Vozidlo::Vozidlo(string spz, double nosnost, double naklady, double celkoveNaklady, Datum datum, double hmotnostZvoz, double hmotnostRozvoz, double aktualnaHmotnost, structures::LinkedList<string>* trasa, structures::LinkedList<Zasielka*>* zasielky):
+	spz_(spz),
+	nosnost_(nosnost),
+	naklady_(naklady),
+	celkoveNaklady_(celkoveNaklady),
+	datum_(datum),
+	hmotnostRozvoz_(hmotnostRozvoz),
+	hmotnostZvoz_(hmotnostZvoz),
+	trasa_(trasa),
+	zasielky_(zasielky),
+	aktualnaHmotnost_(aktualnaHmotnost)
+{
 }
 
 Vozidlo::Vozidlo(string spz, double nosnost, double naklady, Datum datum, structures::LinkedList<string> *trasa):

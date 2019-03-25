@@ -3,6 +3,41 @@
 #include "Datum.h"
 
 
+string Zasielka::getZasielkaZapis()
+{
+	string retazec = " ";
+
+	if (vyzdvihnuta_) retazec += to_string(1);
+	else retazec += to_string(0);
+
+	retazec += " ";
+	retazec += to_string(minutyNaLokPrekladisko_);
+
+	retazec += " ";
+	retazec += to_string(cisloObjednavky_);
+
+	retazec += " ";
+	retazec += to_string(casNaDobitie_);
+
+	retazec += " ";
+	retazec += datumNaLokPrekladisko_.naZapis();
+
+	retazec += " ";
+	retazec += datumAdresat_.naZapis();
+
+	retazec += " ";
+	retazec += regionAdresata_;
+
+	retazec += " ";
+	retazec += to_string(hmotnost_);
+
+	retazec += " ";
+	retazec += to_string(vzdialenostAdresata_);
+	retazec += " ";
+
+	return retazec;
+}
+
 Datum Zasielka::getDatumAdresat()
 {
 	return datumAdresat_;
@@ -63,14 +98,24 @@ int Zasielka::getMinutyNaLokPrekladisko()
 	return minutyNaLokPrekladisko_;
 }
 
+Zasielka::Zasielka(bool vyzdvihnuta, int minutyNaLokPrekladisko, int cisloObjednavky, int casNaDobitie, Datum datNaLokPrekladisko, Datum datumAdresat, std::string regionAdresata, double hmotnost, double vzdialenostAdresata):
+	vyzdvihnuta_(vyzdvihnuta),
+	minutyNaLokPrekladisko_(minutyNaLokPrekladisko),
+	cisloObjednavky_(cisloObjednavky),
+	casNaDobitie_(casNaDobitie),
+	datumNaLokPrekladisko_(datNaLokPrekladisko),
+	datumAdresat_(datumAdresat),
+	regionAdresata_(regionAdresata),
+	hmotnost_(hmotnost),
+	vzdialenostAdresata_(vzdialenostAdresata)
+{
+		
+}
+
 Zasielka::Zasielka(int cisloObjednavky, int minutyNaLokPrekladisko, Datum datumNaLokPrekladisko, std::string regionAdresata, double hmotnost, double vzdialenostAdresata):
 	cisloObjednavky_(cisloObjednavky),
 	minutyNaLokPrekladisko_(minutyNaLokPrekladisko),
 	vyzdvihnuta_(false),
-	lokPrekladisko_(false),
-	cenSklad_(false),
-	lokprekladisko2_(false),
-	dorucena_(false),
 	casNaDobitie_(0),
 	datumNaLokPrekladisko_(datumNaLokPrekladisko),
 	regionAdresata_(regionAdresata),
