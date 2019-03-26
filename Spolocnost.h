@@ -14,11 +14,11 @@ class Spolocnost
 private:
 	Datum datum_;
 	bool run_;
+	int cisloObjednavky_ = 100;
 	ArrayList<Vozidlo*> *vozidla_;
 	ArrayList<Prekladisko*> *prekladiska_;
 	ArrayList<Objednavka*> *objednavky_;
 	
-
 
 	void vypisMenu();
 	int skontrolujInt();
@@ -27,8 +27,8 @@ private:
 	bool overNosnost(int topDron, double hmotnost);
 	Vozidlo* overNosnostAutaZvoz(string okres, double hmotnost);
 	Vozidlo* overNosnostAutaRozvoz(string okres, double hmotnost);
-	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko);
-	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko, Dron *dron);
+	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko, double vzdialenost);
+	Dron* getDostupnyDron(double hmotnost, Prekladisko *prekladisko, Dron *dron, double vzdialenost);
 	void pridajVozidlo();
 	void vypisVozidla();
 	void pridajDronDoPrekladiska();

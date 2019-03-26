@@ -65,17 +65,19 @@ bool Spolocnost::overDolet(int topDron, double vzdialenost)
 	switch (topDron)
 	{
 	case 1:
-		if (vzdialenost <= (40 / 0.75)/2) return true;
+		if (vzdialenost <= (40 * 1.33) / 2) return true;
+		else return false;
 		break;
 
 	case 2:
-		if (vzdialenost <= (60 / 1.5) / 2) return true;
+		if (vzdialenost <= (60 * 0.66) / 2) return true;
+		else return false;
 		break;
 	default:
 		return false;
 		break;
 	}
-	return false;
+	//return false;
 }
 
 bool Spolocnost::overNosnost(int topDron, double hmotnost)
@@ -85,10 +87,12 @@ bool Spolocnost::overNosnost(int topDron, double hmotnost)
 	{
 	case 1:
 		if (hmotnost <= 2) return true;
+		else return false;
 		break;
 
 	case 2:
 		if (hmotnost <= 5) return true;
+		else return false;
 		break;
 	default:
 		return false;
@@ -103,7 +107,7 @@ Vozidlo* Spolocnost::overNosnostAutaZvoz(string okres, double hmotnost)
 	
 	for (Vozidlo *vozidlo : *vozidla_  )
 	{
-		if (vozidlo->patriRegionu(okres) && (vozidlo->getHmotnostZvoz() + hmotnost)/1000 <= vozidlo->getNosnost())
+		if (vozidlo->patriRegionu(okres) && vozidlo->getHmotnostZvoz() + (hmotnost/1000) <= vozidlo->getNosnost())
 		{
 			vhodneVozidlo = vozidlo;
 		}
@@ -126,22 +130,22 @@ Vozidlo* Spolocnost::overNosnostAutaRozvoz(string okres, double hmotnost)
 	return vhodneVozidlo;
 }
 
-Dron * Spolocnost::getDostupnyDron(double hmotnost, Prekladisko *prekladisko)
+Dron * Spolocnost::getDostupnyDron(double hmotnost, Prekladisko *prekladisko, double vzdialenost)
 {
 	//Prekladisko *prekladisko = nullptr;
 	Dron *dostupnyDron = nullptr;
 	//prekladisko = getPrekladisko(okres);
-	dostupnyDron = prekladisko->getDron(hmotnost, &datum_);
+	dostupnyDron = prekladisko->getDron(hmotnost, &datum_, vzdialenost);
 	   
 	return dostupnyDron;
 }
 
-Dron * Spolocnost::getDostupnyDron(double hmotnost, Prekladisko *prekladisko, Dron *dron)
+Dron * Spolocnost::getDostupnyDron(double hmotnost, Prekladisko *prekladisko, Dron *dron, double vzdialenost)
 {
 	//Prekladisko *prekladisko = nullptr;
 	Dron *dostupnyDron = nullptr;
 	//prekladisko = getPrekladisko(okres);
-	dostupnyDron = prekladisko->getDron(hmotnost, &datum_, dron);
+	dostupnyDron = prekladisko->getDron(hmotnost, &datum_, dron, vzdialenost);
 
 	return dostupnyDron;
 }
@@ -268,6 +272,7 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 
 	do
 	{
+
 		cout << "Zadajte okres adresata\n";
 		cin >> regionAdresata;
 		prekladiskoAdresata = getPrekladisko(regionAdresata);
@@ -286,8 +291,14 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 	vozidloZvoz = overNosnostAutaZvoz(regionOdosielatela, hmotnost); //ak existuje vozidlo schopne previezt zasielku tak sa priradi inak nullptr
 	vozidloOdvoz = overNosnostAutaRozvoz(regionAdresata, hmotnost);
 
-	topDronZvoz = prekladiskoOdosielatela->getTopDron(); //zistenie aky najlepsi dron je v danom prekladisku
-	topDronRozvoz = prekladiskoAdresata->getTopDron();
+	Dron *dostupnyDron = getDostupnyDron(hmotnost, prekladiskoOdosielatela, vzdialenostOodosielatela); //konkretny najlepsi dron na prepravu zasielky od odosielatela
+	if (dostupnyDron != nullptr) topDronZvoz = dostupnyDron->getTyp();
+	else topDronZvoz = 3;
+	
+	Dron *dostupnyDronAdresat = getDostupnyDron(hmotnost, prekladiskoAdresata, vzdialenostAdresata);
+	if (dostupnyDronAdresat != nullptr) topDronRozvoz = dostupnyDronAdresat->getTyp();
+	else topDronRozvoz = 3;
+
 
 	if (overDolet(topDronZvoz, vzdialenostOodosielatela) && overDolet(topDronRozvoz, vzdialenostAdresata)) //overenie doletu dronov v regione adresata a odosielatela
 	{
@@ -295,7 +306,6 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 		{
 			if (vozidloZvoz != nullptr && vozidloOdvoz != nullptr) //overenie ci mame k dispozicii vozidla na prepravu 
 			{
-				Dron *dostupnyDron = getDostupnyDron(hmotnost, prekladiskoOdosielatela); //konkretny najlepsi dron na prepravu zasielky od odosielatela
 				Datum datumVyzdvihnutia = dostupnyDron->getCasVolny();
 				if (dostupnyDron->getTyp() == 1)
 				{
@@ -314,7 +324,7 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 				if (regionAdresata == regionOdosielatela) // overenie ci sa zasielka stihne dorucit do 18 hodiny ak sa regiony rovnaju
 				{
 					Datum datLokPrekladisko = Datum::pridajMinuty(datumVyzdvihnutia, minutyNaLokPrekladisko + minutyNaDobitie); //cas kedy ten isty dron bude ready na odvezenie zasielky k adresatovi
-					Dron *alternativnyDron = getDostupnyDron(hmotnost, prekladiskoAdresata, dostupnyDron); //druhy najvhodnejsi dron 
+					Dron *alternativnyDron = getDostupnyDron(hmotnost, prekladiskoAdresata, dostupnyDron, vzdialenostAdresata); //druhy najvhodnejsi dron 
 					if (alternativnyDron->getCasVolny() < datLokPrekladisko)  //podmienka ci alternativny dron dokaze dorucit zasielku skor ako sa prvy dron nabije
 					{
 						if (alternativnyDron->getTyp() == 1)
@@ -341,19 +351,6 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 						if (dorucenie.getHodina() >= 18) flag = true;
 					}
 				}
-			/*	else
-				{
-					Dron *dronAdresata = getDostupnyDron(hmotnost, prekladiskoAdresata); 
-					if (dronAdresata->getTyp() == 1)
-					{
-						minutyAdresat = 0.75 * vzdialenostAdresata + 1;
-					}
-					else {
-						minutyAdresat = 1.5 * vzdialenostAdresata + 1;
-					}
-					Datum dorucenie = Datum::pridajMinuty(dronAdresata->getCasVolny(), minutyAdresat);
-					if (dorucenie.getHodina() >= 18) flag = true;
-				}*/
 
 				if (datumVyzdvihnutia.getHodina() >= 20) flag = true; //ak sa zasielka moze vyzdvihnut az po 20 hodine objednavka sa zrusi 
 
@@ -362,7 +359,7 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 				if (!flag)
 				{
 					Datum pomDatum = Datum::posunOHodinu(datum_);  //datum na kontrolu ci sa stihne zasielka vyzdvihnut do 1 hodiny
-					if (datumVyzdvihnutia < pomDatum)
+					if (pomDatum < datumVyzdvihnutia)
 					{
 						potvrdObjednavku = true;
 					}
@@ -404,6 +401,7 @@ void Spolocnost::pridajObjednavku(int cisloObjednavky)
 				objednavky_->add(objednavka);
 				cout << "\nObjednavka bola zamietnuta pretoze nalozenie zasielky do auta by prekrocilo jeho nosnost.\n";
 			}
+		
 		}
 		else
 		{
@@ -532,6 +530,7 @@ void Spolocnost::transportZasielokDoLokalnychPrekladisk()
 {
 	for (Vozidlo *vozidlo : *vozidla_)
 	{
+		vozidlo->VynulujHmotnosti();
 		if (!vozidlo->getZasielky()->isEmpty())
 		{
 			for (Zasielka *zasielka : *vozidlo->getZasielky())
@@ -562,7 +561,7 @@ void Spolocnost::naplanujRozvozZasielok()
 	{
 		for (Zasielka *zasielka : *prekladisko->getZasielkyNaRozvoz())
 		{
-			Dron *dostupnyDron = getDostupnyDron(zasielka->getHmotnost(), prekladisko);
+			Dron *dostupnyDron = getDostupnyDron(zasielka->getHmotnost(), prekladisko, zasielka->getVzdialenostAdresata());
 
 			if (dostupnyDron->getTyp() == 1)
 			{
@@ -672,6 +671,7 @@ void Spolocnost::vypisStatistiky()
 				case 2:
 					cout << setw(20) << left << objednavka->getCisloObjednavky();
 					cout << setw(20) << left << "Objednavka bola zamietnuta pretoze jej hmotnost je prilis vysoka." << endl;
+					break;
 
 				case 3:
 					cout << setw(20) << left << objednavka->getCisloObjednavky();
@@ -681,10 +681,11 @@ void Spolocnost::vypisStatistiky()
 				case 4:
 					cout << setw(20) << left << objednavka->getCisloObjednavky();
 					cout << setw(20) << left << "Objednavka bola zamietnuta z dovodu neskoreho casu vyzdvihnutia." << endl;
+					break;
 				}
 			}
 		}
-		else cout << "\nV zadanom okrese alebo casovom obdobi sa nenasli ziadne zamietnute zasielky.\n";
+		//else cout << "\nV zadanom okrese alebo casovom obdobi sa nenasli ziadne zamietnute zasielky.\n";
 	}
 
 	cout << "\nPocet zrusenych objednavok v regione " << region << " za zadane casove obdobie je: " << pocetZrusenychObjednavok << ".\n";
@@ -697,6 +698,7 @@ void Spolocnost::zapisDoSuboru()
 
 	if (zapis.is_open())
 	{
+		zapis << cisloObjednavky_ << endl;
 		zapis << datum_.naZapis() << endl; //datum
 
 		//zapis vozidiel
@@ -763,6 +765,8 @@ void Spolocnost::nacitajZoSuboru()
 	
 	bool vyzdvihnuta;
 
+	citac >> cisloObjednavky_;
+
 	//datum
 	citac >> minuty >> hodiny >> dni;
 	datum_ = Datum(hodiny, minuty, dni);
@@ -797,13 +801,12 @@ void Spolocnost::nacitajZoSuboru()
 			zasielky->add(zasielka);
 		}
 
-		Vozidlo *vozidlo = new Vozidlo(spz, nosnost, naklady, celkoveNaklady,  datum_, hmotnostZvoz, hmotnostRozvoz, aktualnaHmotnost, trasa, zasielky);
+		Vozidlo *vozidlo = new Vozidlo(spz, nosnost, naklady, celkoveNaklady, datumVozidlo, hmotnostZvoz, hmotnostRozvoz, aktualnaHmotnost, trasa, zasielky);
 		vozidla_->add(vozidlo);
 	}
 
 
-	//prekladiska
-	int garbage;
+	//prekladiska	
 	for (Prekladisko *prekladisko : *prekladiska_)
 	{
 		delete prekladisko;
@@ -817,17 +820,15 @@ void Spolocnost::nacitajZoSuboru()
 		citac >> okres >> maxHmotnost >> pocetDorucenychZasielok >> pocetOdoslanychZasielok >> drony;
 		ArrayList<Dron*> *drony_ = new ArrayList<Dron*>();
 		LinkedList<Zasielka*> *zasielkyNaOdvoz = new LinkedList<Zasielka*>();
-		LinkedList<Zasielka*> *zasielkyNaRozvoz = new LinkedList<Zasielka*>();
-		if (drony == 0) citac >> garbage >> garbage;
+		LinkedList<Zasielka*> *zasielkyNaRozvoz = new LinkedList<Zasielka*>();	
 		for (int j = 0; j < drony; j++)
 		{
 			citac >> typ >> nalietaneMinuty >> pocPrepravenychZasielok >> minuty >> hodiny >> dni;
 			Datum datumZaradenia = Datum(hodiny, minuty, dni);
 			citac >> minuty >> hodiny >> dni >> serioveCislo >> kapacitaBaterie >> pocetZasielok;
-			Datum casVolny = Datum(hodiny, dni, minuty);
+			Datum casVolny = Datum(hodiny, minuty, dni);
 
-			LinkedList<Zasielka*> *zasielky_ = new LinkedList<Zasielka*>();	
-			if (pocetZasielok == 0) citac >> garbage;
+			LinkedList<Zasielka*> *zasielky_ = new LinkedList<Zasielka*>();			
 			for (int k = 0; k < pocetZasielok; k++)
 			{
 				citac >> pomBool;
@@ -840,9 +841,10 @@ void Spolocnost::nacitajZoSuboru()
 				Datum datumAdresat = Datum(hodiny, minuty, dni);
 				Zasielka *zasielka = new Zasielka(vyzdvihnuta, minutyNaLokPrekladisko, cisloObjednavky, casNaDobitie, datLokPrekladisko, datumAdresat, regionAdresata, hmotnost, vzdialenostAdresata);
 				zasielky_->add(zasielka);
-			}			
+			}
 			Dron *dron = new Dron(typ, nalietaneMinuty, pocPrepravenychZasielok, datumZaradenia, casVolny, serioveCislo, kapacitaBaterie, zasielky_);
 			drony_->add(dron);
+		}
 			
 			citac >> pocetZasielok;
 
@@ -875,7 +877,7 @@ void Spolocnost::nacitajZoSuboru()
 				Zasielka *zasielka = new Zasielka(vyzdvihnuta, minutyNaLokPrekladisko, cisloObjednavky, casNaDobitie, datLokPrekladisko, datumAdresat, regionAdresata, hmotnost, vzdialenostAdresata);
 				zasielkyNaRozvoz->add(zasielka);
 			}
-		}
+		
 	
 		Prekladisko *prekladisko_ = new Prekladisko(okres, maxHmotnost, pocetDorucenychZasielok, pocetOdoslanychZasielok, drony_, zasielkyNaOdvoz, zasielkyNaRozvoz);
 		prekladiska_->add(prekladisko_);
@@ -905,7 +907,7 @@ void Spolocnost::nacitajZoSuboru()
 
 void Spolocnost::vyber()
 {
-	int volba_, cisloObjednavky = 100;
+	int volba_;
 	
 
 	while (run_)
@@ -933,8 +935,8 @@ void Spolocnost::vyber()
 				navratVozidielDoCentralnehoSkladu();
 				nalozenieVozidielVCentralnomSklade();
 				transportZasielokDoLokalnychPrekladisk();
-				naplanujRozvozZasielok();
 			}
+			naplanujRozvozZasielok();
 			dorucZasielky();
 			break;
 		}
@@ -956,8 +958,8 @@ void Spolocnost::vyber()
 			break;
 
 		case 7:
-			pridajObjednavku(cisloObjednavky);
-			cisloObjednavky++;
+			pridajObjednavku(cisloObjednavky_);
+			cisloObjednavky_++;
 			break;		
 
 		case 8:

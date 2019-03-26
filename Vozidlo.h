@@ -22,6 +22,7 @@ private:
 
 	
 public:
+	void VynulujHmotnosti();
 	string getZasielkyZapis();
 	Datum getDatumPridania();
 	double getCelkoveNaklady();

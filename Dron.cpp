@@ -42,9 +42,9 @@ structures::LinkedList<Zasielka*>* Dron::dorucZasielky(Datum datum)
 	{
 		if (zasielka->getDatumAdresat() < datum && zasielka->Vyzdvihnuta())
 		{
+			pocetPrepravenychZasielok_++;
 			zasielky->add(zasielka);
-			zasielky_->tryRemove(zasielka);
-			//delete zasielka;
+			zasielky_->tryRemove(zasielka);			
 		}
 		if (zasielky_->size() == 0) break;
 	}
@@ -64,26 +64,18 @@ void Dron::setCasVolnyPoDobiti(int minuty)
 structures::LinkedList<Zasielka*> *Dron::vylozZasielky(Datum datum)
 {
 	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
-
 	
 	for (Zasielka *zasielka : *zasielky_)
 	{
 		if (zasielka->getDatumNaLokPrekladisko() < datum && !zasielka->Vyzdvihnuta())
 		{
+			pocetPrepravenychZasielok_++;
 			zasielky->add(zasielka);
-			zasielky_->tryRemove(zasielka);
-			//delete zasielka;
+			zasielky_->tryRemove(zasielka);			
 		}
 		if (zasielky_->size() == 0) break;
 	}
 	
-	//for (Zasielka *zasielka : *zasielky_)
-	//{
-	//	if (zasielka->getDatumNaLokPrekladisko() < datum)
-	//	{			
-	//		zasielky_->tryRemove(zasielka);
-	//	}
-	//}
 	return zasielky;
 }
 
@@ -132,8 +124,8 @@ Datum Dron::getCasVolny()
 	{
 		minutyNaDobitie += zasielka->getCasNaDobitie();
 	}
-	if (typ_ == 1) minutyNaDobitie -= (int)kapacitaBaterie_ * 40;
-	else minutyNaDobitie -= (int)kapacitaBaterie_ * 60;
+	//if (typ_ == 1) minutyNaDobitie -= (int)kapacitaBaterie_ * 40;
+	//else minutyNaDobitie -= (int)kapacitaBaterie_ * 60;
 	Datum newDatum = Datum::pridajMinuty(casVolny_, minutyNaDobitie);
 	return newDatum;
 }

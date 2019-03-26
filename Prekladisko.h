@@ -29,9 +29,9 @@ public:
 	void vylozDrony(Datum datum);
 	ArrayList<Dron*>* getZoznamDronov();
 	double getMaxHmotnost();
-	Dron* getDron(double hmotnost, Datum *datum);
-	Dron* getDron(double hmotnost, Datum *datum, Dron *dron_);
-	int getTopDron(); //vrati aky najlespi dron je v prekladisku
+	Dron* getDron(double hmotnost, Datum *datum, double vzdialenost);
+	Dron* getDron(double hmotnost, Datum *datum, Dron *dron_, double vzdialenost);
+	int getTopDron(int pouzitie); //vrati aky najlespi dron je v prekladisku
 	void VypisDrony();
 	void pridajDron(Dron *dron);
 	string getOkres();

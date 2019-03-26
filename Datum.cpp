@@ -30,14 +30,23 @@ Datum Datum::pridajMinuty(Datum & datum, int minuty)
 	int cas = minuty;
 	int hodiny_, dni_;
 	Datum novyDatum = datum;
-	dni_ = cas / 1440;
-	//cout << "dni" << dni_;
+	dni_ = cas / 1440;	
 	cas -= dni_ * 1440;
 	hodiny_ = cas / 60;
 	cas -= hodiny_ * 60; 
 
-	novyDatum.minuta_ += cas;
-	novyDatum.hodina_ += hodiny_;
+	if (novyDatum.minuta_ + cas >= 60)
+	{
+		novyDatum.minuta_ += cas - 60;
+		hodiny_++;
+	}
+
+	if (novyDatum.hodina_ + hodiny_ >= 24)
+	{
+		novyDatum.hodina_ += hodiny_ - 24;
+		dni_++;
+	}
+
 	novyDatum.den_ += dni_;
 
 

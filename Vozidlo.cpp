@@ -8,6 +8,13 @@
 using namespace std;
 
 
+void Vozidlo::VynulujHmotnosti()
+{
+	hmotnostRozvoz_ = 0;
+	hmotnostZvoz_ = 0;
+	aktualnaHmotnost_ = 0;
+}
+
 string Vozidlo::getZasielkyZapis()
 {
 	string trasa;
@@ -32,7 +39,7 @@ double Vozidlo::getCelkoveNaklady()
 
 void Vozidlo::setAktualnaHmotnost(double hmotnost)
 {
-	aktualnaHmotnost_ = hmotnost;
+	aktualnaHmotnost_ += hmotnost;
 }
 
 double Vozidlo::getAktualnaHmotnost()
@@ -57,12 +64,12 @@ void Vozidlo::pridajZasielkuNaRozvoz(Zasielka * zasielka)
 
 void Vozidlo::setHmotnostRozvoz(double hmotnost)
 {
-	hmotnostRozvoz_ += hmotnost;
+	hmotnostRozvoz_ += hmotnost/1000;
 }
 
 void Vozidlo::setHmotnostZvoz(double hmotnost)
 {
-	hmotnostZvoz_ += hmotnost;
+	hmotnostZvoz_ += hmotnost/1000;
 }
 
 int Vozidlo::getDlzkaTrasy()

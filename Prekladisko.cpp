@@ -23,20 +23,17 @@ void Prekladisko::dorucZasielky(Datum datum)
 		if (!zasielky->isEmpty())
 		{
 			for (Zasielka *zasielka : *zasielky)
-			{
-				//if (zasielka->Vyzdvihnuta())
-				//{
-					dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
-					pocetDorucenychZasielok_++;
+			{			
+				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+				pocetDorucenychZasielok_++;
 
-					zasielky->tryRemove(zasielka);
-					delete zasielka;
-					if (zasielky->size() == 0) 
-					{
-						delete zasielky;
-						break;
-					}
-				//}
+				zasielky->tryRemove(zasielka);
+				delete zasielka;
+				if (zasielky->size() == 0)
+				{
+					delete zasielky;
+					break;
+				}
 			}
 		}
 		else delete zasielky;
@@ -56,24 +53,23 @@ LinkedList<Zasielka*>* Prekladisko::getZasielkyNaOdvoz()
 void Prekladisko::vylozDrony(Datum datum)
 {
 	for (Dron *dron : *drony_)
-	{
-		//dron->setKapacitaBaterie(1);
+	{		
 		LinkedList<Zasielka*> *zasielky = dron->vylozZasielky(datum);
 
 		for (Zasielka *zasielka : *zasielky)
 		{
 			//if (!zasielka->Vyzdvihnuta())
 			//{
-				zasielka->setVyzdvihnuta();
-				pocetOdoslanychZasielok_++;
+			zasielka->setVyzdvihnuta();
+			pocetOdoslanychZasielok_++;
 
-				if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka);
-				else zasielkyNaOdvoz_->add(zasielka);
+			if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka);
+			else zasielkyNaOdvoz_->add(zasielka);
 
-				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+			dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
 
-				zasielky->tryRemove(zasielka);
-				if (zasielky->size() == 0) break;
+			zasielky->tryRemove(zasielka);
+			if (zasielky->size() == 0) break;
 			//}
 		}
 		delete zasielky;
@@ -90,12 +86,12 @@ double Prekladisko::getMaxHmotnost()
 	return maxHmotnost_;
 }
 
-Dron * Prekladisko::getDron(double hmotnost, Datum *datum)
+Dron * Prekladisko::getDron(double hmotnost, Datum *datum, double vzdialenost)
 {
 	Dron *pickDron = (*drony_)[0];
-	
+
 	for (Dron *dron : *drony_)
-	{	
+	{
 		if (hmotnost > 2)
 		{
 			if (dron->getTyp() == 2)
@@ -105,6 +101,32 @@ Dron * Prekladisko::getDron(double hmotnost, Datum *datum)
 					if (pickDron->getCasVolny() < *datum)
 					{
 						if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) pickDron = dron;
+					}
+					else pickDron = dron;
+				}
+				else if (dron->getCasVolny() < pickDron->getCasVolny())
+				{
+					pickDron = dron;
+				}
+				else if (dron->getCasVolny() == pickDron->getCasVolny())
+				{
+					if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) pickDron = dron;
+				}
+			}
+		}
+		else if (vzdialenost > 20)
+		{
+			if (dron->getTyp() == 1)
+			{
+				if (dron->getCasVolny() < *datum)
+				{
+					if (pickDron->getCasVolny() < *datum)
+					{
+						if (dron->getTyp() < pickDron->getTyp()) pickDron = dron;
+						else if (dron->getTyp() == pickDron->getTyp())
+						{
+							if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) pickDron = dron;
+						}
 					}
 					else pickDron = dron;
 				}
@@ -141,11 +163,12 @@ Dron * Prekladisko::getDron(double hmotnost, Datum *datum)
 				if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) pickDron = dron;
 			}
 		}
+
 	}
 	return pickDron;
 }
 
-Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_)
+Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_, double vzdialenost)
 {
 	Dron *pickDron = (*drony_)[0];
 
@@ -159,7 +182,33 @@ Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_)
 				{
 					if (pickDron->getCasVolny() < *datum)
 					{
-						if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) if(dron != dron_) pickDron = dron;
+						if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) if (dron != dron_) pickDron = dron;
+					}
+					else if (dron != dron_) pickDron = dron;
+				}
+				else if (dron->getCasVolny() < pickDron->getCasVolny())
+				{
+					if (dron != dron_) pickDron = dron;
+				}
+				else if (dron->getCasVolny() == pickDron->getCasVolny())
+				{
+					if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) if (dron != dron_) pickDron = dron;
+				}
+			}
+		}
+		else if (vzdialenost >= 20)
+		{
+			if (dron->getTyp() == 1)
+			{
+				if (dron->getCasVolny() < *datum)
+				{
+					if (pickDron->getCasVolny() < *datum)
+					{
+						if (dron->getTyp() < pickDron->getTyp()) if (dron != dron_) pickDron = dron;
+						else if (dron->getTyp() == pickDron->getTyp())
+						{
+							if (dron->getKapacitaBaterie() > pickDron->getKapacitaBaterie()) if (dron != dron_) pickDron = dron;
+						}
 					}
 					else if (dron != dron_) pickDron = dron;
 				}
@@ -200,17 +249,34 @@ Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_)
 	return pickDron;
 }
 
-int Prekladisko::getTopDron()
+int Prekladisko::getTopDron(int pouzitie)
 {
 	int typ = 0;
-	for (Dron *dron : *drony_)
-	{
-		if (dron->getTyp() > typ)
-		{
-			typ = dron->getTyp();
-		}
 
-		if (typ == 2) return typ;
+	if (pouzitie == 1)
+	{
+		typ = 3;
+		for (Dron *dron : *drony_)
+		{
+			if (dron->getTyp() < typ)
+			{
+				typ = dron->getTyp();
+			}
+
+			if (typ == 1) return typ;
+		}
+	}
+	else
+	{
+		for (Dron *dron : *drony_)
+		{
+			if (dron->getTyp() > typ)
+			{
+				typ = dron->getTyp();
+			}
+
+			if (typ == 2) return typ;
+		}
 	}
 	return typ;
 }
@@ -251,13 +317,13 @@ Prekladisko::Prekladisko(string okres, double maxHmotnost, int pocetDorucenychZa
 	maxHmotnost_(maxHmotnost),
 	pocetDorucenychZasielok_(pocetDorucenychZasielok),
 	pocetOdoslanychZasielok_(pocetOdoslanychZasielok),
-	drony_(drony), 
+	drony_(drony),
 	zasielkyNaOdvoz_(zasielkyNaOdvoz),
 	zasielkyNaRozvoz_(zasielkyNaRozvoz)
 {
 }
 
-Prekladisko::Prekladisko(string okres):
+Prekladisko::Prekladisko(string okres) :
 	okres_(okres),
 	drony_(new ArrayList<Dron*>()),
 	maxHmotnost_(0),
