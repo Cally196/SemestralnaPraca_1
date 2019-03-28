@@ -49,7 +49,6 @@ Datum Datum::pridajMinuty(Datum & datum, int minuty)
 
 	novyDatum.den_ += dni_;
 
-
 	return novyDatum;
 }
 
@@ -68,7 +67,7 @@ Datum Datum::posunOHodinu(Datum &datum)
 	return novyDatum;
 }
 
-bool Datum::operator<(Datum & datum)
+bool Datum::operator<(Datum datum)
 {
 	if (den_ < datum.den_) return true;
 	else if (den_ == datum.den_ && hodina_ < datum.hodina_) return true;
@@ -76,7 +75,7 @@ bool Datum::operator<(Datum & datum)
 	else return false;
 }
 
-bool Datum::operator==(Datum & datum)
+bool Datum::operator==(Datum datum)
 {
 	return (den_ == datum.den_ && hodina_ == datum.hodina_ && minuta_ == datum.minuta_);
 }

@@ -18,7 +18,7 @@ public:
 	string getZasielkaZapis();
 	Datum getDatumAdresat();
 	void setDatumAdresat(Datum datum);
-	int getVzdialenostAdresata();
+	double getVzdialenostAdresata();
 	void setVyzdvihnuta();
 	bool Vyzdvihnuta();
 	double getHmotnost();

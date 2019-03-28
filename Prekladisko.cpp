@@ -19,16 +19,16 @@ void Prekladisko::dorucZasielky(Datum datum)
 {
 	for (Dron *dron : *drony_)
 	{
-		LinkedList<Zasielka*> *zasielky = dron->dorucZasielky(datum);
+		LinkedList<Zasielka*> *zasielky = dron->dorucZasielky(datum); //z drona dostaneme zasielky ktore maju byt dorucene
 		if (!zasielky->isEmpty())
 		{
 			for (Zasielka *zasielka : *zasielky)
 			{			
-				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie()); //aktualizujeme cas kedy bude dron volny po doruceni danej zasielky
 				pocetDorucenychZasielok_++;
 
 				zasielky->tryRemove(zasielka);
-				delete zasielka;
+				delete zasielka; //zasielka za po doruceni odstrani zo zoznamu
 				if (zasielky->size() == 0)
 				{
 					delete zasielky;
@@ -54,23 +54,20 @@ void Prekladisko::vylozDrony(Datum datum)
 {
 	for (Dron *dron : *drony_)
 	{		
-		LinkedList<Zasielka*> *zasielky = dron->vylozZasielky(datum);
+		LinkedList<Zasielka*> *zasielky = dron->vylozZasielky(datum); //ziskanie listu zasielok ktore maju byt vylozene
 
 		for (Zasielka *zasielka : *zasielky)
-		{
-			//if (!zasielka->Vyzdvihnuta())
-			//{
+		{			
 			zasielka->setVyzdvihnuta();
 			pocetOdoslanychZasielok_++;
 
-			if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka);
+			if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka); //ak dana zasielka je dorucovana v tom istom prekladisku priradi sa k zasielkam na rozvoz
 			else zasielkyNaOdvoz_->add(zasielka);
 
 			dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
 
 			zasielky->tryRemove(zasielka);
-			if (zasielky->size() == 0) break;
-			//}
+			if (zasielky->size() == 0) break;		
 		}
 		delete zasielky;
 	}
@@ -86,7 +83,7 @@ double Prekladisko::getMaxHmotnost()
 	return maxHmotnost_;
 }
 
-Dron * Prekladisko::getDron(double hmotnost, Datum *datum, double vzdialenost)
+Dron * Prekladisko::getDron(double hmotnost, Datum *datum, double vzdialenost) //vrati najlepsi dron na presun zasielky
 {
 	Dron *pickDron = (*drony_)[0];
 
@@ -168,7 +165,7 @@ Dron * Prekladisko::getDron(double hmotnost, Datum *datum, double vzdialenost)
 	return pickDron;
 }
 
-Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_, double vzdialenost)
+Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_, double vzdialenost) //vrati alternativne najlepsi dron na dorucenie zasielky
 {
 	Dron *pickDron = (*drony_)[0];
 
@@ -249,37 +246,37 @@ Dron * Prekladisko::getDron(double hmotnost, Datum *datum, Dron * dron_, double 
 	return pickDron;
 }
 
-int Prekladisko::getTopDron(int pouzitie)
-{
-	int typ = 0;
-
-	if (pouzitie == 1)
-	{
-		typ = 3;
-		for (Dron *dron : *drony_)
-		{
-			if (dron->getTyp() < typ)
-			{
-				typ = dron->getTyp();
-			}
-
-			if (typ == 1) return typ;
-		}
-	}
-	else
-	{
-		for (Dron *dron : *drony_)
-		{
-			if (dron->getTyp() > typ)
-			{
-				typ = dron->getTyp();
-			}
-
-			if (typ == 2) return typ;
-		}
-	}
-	return typ;
-}
+//int Prekladisko::getTopDron(int pouzitie) 
+//{
+//	int typ = 0;
+//
+//	if (pouzitie == 1)
+//	{
+//		typ = 3;
+//		for (Dron *dron : *drony_)
+//		{
+//			if (dron->getTyp() < typ)
+//			{
+//				typ = dron->getTyp();
+//			}
+//
+//			if (typ == 1) return typ;
+//		}
+//	}
+//	else
+//	{
+//		for (Dron *dron : *drony_)
+//		{
+//			if (dron->getTyp() > typ)
+//			{
+//				typ = dron->getTyp();
+//			}
+//
+//			if (typ == 2) return typ;
+//		}
+//	}
+//	return typ;
+//}
 
 void Prekladisko::VypisDrony()
 {

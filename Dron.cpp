@@ -6,7 +6,7 @@
 using namespace structures;
 using namespace std;
 
-int Dron::casNaDobitie(int minutyNaPrekladisko)
+int Dron::casNaDobitie(int minutyNaPrekladisko) //vrati cas potrebny na nabitie po obsluzeni danej zasielky zaroven aktualizuje cas kedy bude volny po obsluzeni zasielky
 {
 	int casNaNabitie = 0;
 
@@ -23,9 +23,7 @@ int Dron::casNaDobitie(int minutyNaPrekladisko)
 		kapacitaBaterie_ -= (minutyNaPrekladisko * 2) / 60;
 	}
 	casVolny_ = Datum::pridajMinuty(casVolny_, minutyNaPrekladisko * 2);
-
-
-	//nalietaneMinuty_ += 2 * minutyNaPrekladisko;
+	
 	return casNaNabitie;
 }
 
@@ -34,7 +32,7 @@ double Dron::getNalietaneHodiny()
 	return nalietaneMinuty_ / (double)60;
 }
 
-structures::LinkedList<Zasielka*>* Dron::dorucZasielky(Datum datum)
+structures::LinkedList<Zasielka*>* Dron::dorucZasielky(Datum datum) //vrati list zasielok ktore sa maju dorucit po posune casu
 {
 	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
 
@@ -61,7 +59,7 @@ void Dron::setCasVolnyPoDobiti(int minuty)
 	casVolny_ = Datum::pridajMinuty(casVolny_, minuty);
 }
 
-structures::LinkedList<Zasielka*> *Dron::vylozZasielky(Datum datum)
+structures::LinkedList<Zasielka*> *Dron::vylozZasielky(Datum datum) // vrati list zasielok ktore sa maju vylozit na prekladisko pri posune casu
 {
 	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
 	
@@ -123,9 +121,7 @@ Datum Dron::getCasVolny()
 	for (Zasielka *zasielka : *zasielky_)
 	{
 		minutyNaDobitie += zasielka->getCasNaDobitie();
-	}
-	//if (typ_ == 1) minutyNaDobitie -= (int)kapacitaBaterie_ * 40;
-	//else minutyNaDobitie -= (int)kapacitaBaterie_ * 60;
+	}	
 	Datum newDatum = Datum::pridajMinuty(casVolny_, minutyNaDobitie);
 	return newDatum;
 }

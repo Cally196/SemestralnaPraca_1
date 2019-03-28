@@ -15,7 +15,7 @@ void Vozidlo::VynulujHmotnosti()
 	aktualnaHmotnost_ = 0;
 }
 
-string Vozidlo::getZasielkyZapis()
+string Vozidlo::getZasielkyZapis() //vrati retazec zasielok na zapis do suboru
 {
 	string trasa;
 
@@ -77,7 +77,7 @@ int Vozidlo::getDlzkaTrasy()
 	return trasa_->size();
 }
 
-string Vozidlo::getTrasa()
+string Vozidlo::getTrasa() //vrati retazec trasy na zapis do suboru
 {
 	string trasa;
 
@@ -115,9 +115,9 @@ double Vozidlo::getHmotnostRozvoz()
 	return hmotnostRozvoz_;
 }
 
-bool Vozidlo::patriRegionu(string region)
+bool Vozidlo::patriRegionu(string region) //overenie ci zadany region je zaradeny v trase
 {
-	for (int i = 0; i < trasa_->size(); i++)
+	for (int i = 0; i < static_cast<int>(trasa_->size()); i++)
 	{
 		if ((*trasa_)[i] == region) return true;
 	}

@@ -31,7 +31,7 @@ public:
 	double getMaxHmotnost();
 	Dron* getDron(double hmotnost, Datum *datum, double vzdialenost);
 	Dron* getDron(double hmotnost, Datum *datum, Dron *dron_, double vzdialenost);
-	int getTopDron(int pouzitie); //vrati aky najlespi dron je v prekladisku
+	//int getTopDron(int pouzitie); //vrati aky najlespi dron je v prekladisku
 	void VypisDrony();
 	void pridajDron(Dron *dron);
 	string getOkres();

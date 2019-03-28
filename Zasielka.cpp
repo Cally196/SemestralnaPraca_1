@@ -48,7 +48,7 @@ void Zasielka::setDatumAdresat(Datum datum)
 	datumAdresat_ = datum;
 }
 
-int Zasielka::getVzdialenostAdresata()
+double Zasielka::getVzdialenostAdresata()
 {
 	return vzdialenostAdresata_;
 }
