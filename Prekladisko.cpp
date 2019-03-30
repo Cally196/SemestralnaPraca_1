@@ -27,14 +27,15 @@ void Prekladisko::dorucZasielky(Datum datum)
 				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie()); //aktualizujeme cas kedy bude dron volny po doruceni danej zasielky
 				pocetDorucenychZasielok_++;
 
-				zasielky->tryRemove(zasielka);
+				//zasielky->tryRemove(zasielka);
 				delete zasielka; //zasielka za po doruceni odstrani zo zoznamu
-				if (zasielky->size() == 0)
+				/*if (zasielky->size() == 0)
 				{
 					delete zasielky;
 					break;
-				}
+				}*/
 			}
+			delete zasielky;
 		}
 		else delete zasielky;
 	}
@@ -56,18 +57,22 @@ void Prekladisko::vylozDrony(Datum datum)
 	{		
 		LinkedList<Zasielka*> *zasielky = dron->vylozZasielky(datum); //ziskanie listu zasielok ktore maju byt vylozene
 
-		for (Zasielka *zasielka : *zasielky)
-		{			
-			zasielka->setVyzdvihnuta();
-			pocetOdoslanychZasielok_++;
+		if (!zasielky->isEmpty())
+		{
+			for (Zasielka *zasielka : *zasielky)
+			{
+				zasielka->setVyzdvihnuta();
+				pocetOdoslanychZasielok_++;
 
-			if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka); //ak dana zasielka je dorucovana v tom istom prekladisku priradi sa k zasielkam na rozvoz
-			else zasielkyNaOdvoz_->add(zasielka);
+				if (zasielka->getRegionAdresata() == okres_) zasielkyNaRozvoz_->add(zasielka); //ak dana zasielka je dorucovana v tom istom prekladisku priradi sa k zasielkam na rozvoz
+				else zasielkyNaOdvoz_->add(zasielka);
 
-			dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
+				dron->setCasVolnyPoDobiti(zasielka->getCasNaDobitie());
 
-			zasielky->tryRemove(zasielka);
-			if (zasielky->size() == 0) break;		
+				//zasielky->tryRemove(zasielka);
+				//if (zasielky->size() == 0) break;
+			}
+			zasielky->clear();
 		}
 		delete zasielky;
 	}

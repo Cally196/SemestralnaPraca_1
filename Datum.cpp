@@ -40,11 +40,20 @@ Datum Datum::pridajMinuty(Datum & datum, int minuty)
 		novyDatum.minuta_ += cas - 60;
 		hodiny_++;
 	}
+	else
+	{
+		novyDatum.minuta_ += cas;
+	}
+	
 
 	if (novyDatum.hodina_ + hodiny_ >= 24)
 	{
 		novyDatum.hodina_ += hodiny_ - 24;
 		dni_++;
+	}
+	else
+	{
+		novyDatum.hodina_ += hodiny_;
 	}
 
 	novyDatum.den_ += dni_;
@@ -57,7 +66,7 @@ Datum Datum::posunOHodinu(Datum &datum)
 	Datum novyDatum = datum;
 	novyDatum.hodina_++;
 
-	if (novyDatum.hodina_ == 21)
+	if (novyDatum.hodina_ >= 21)
 	{
 		novyDatum.hodina_ = 7;
 		novyDatum.minuta_ = 0;

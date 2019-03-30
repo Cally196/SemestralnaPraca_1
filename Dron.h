@@ -28,7 +28,7 @@ public:
 	structures::LinkedList<Zasielka*> *vylozZasielky(Datum datum);
 	double getKapacitaBaterie();
 	string getInfoNaZapis();
-	void pridajZasielku(Zasielka *zasielka, int casNaPrekladisko);
+	void pridajZasielku(Zasielka *zasielka, int casNaPrekladisko, Datum datum);
 	Datum getCasVolny();
 	int getTyp();
 	void vypisInfo();

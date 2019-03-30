@@ -35,17 +35,31 @@ double Dron::getNalietaneHodiny()
 structures::LinkedList<Zasielka*>* Dron::dorucZasielky(Datum datum) //vrati list zasielok ktore sa maju dorucit po posune casu
 {
 	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
+	LinkedList<Zasielka*> *nedokonceneZasielky = new LinkedList<Zasielka*>;
 
 	for (Zasielka *zasielka : *zasielky_)
 	{
 		if (zasielka->getDatumAdresat() < datum && zasielka->Vyzdvihnuta())
 		{
 			pocetPrepravenychZasielok_++;
-			zasielky->add(zasielka);
-			zasielky_->tryRemove(zasielka);			
+			zasielky->add(zasielka);			
+		}
+		else
+		{
+			nedokonceneZasielky->add(zasielka);
 		}
 		if (zasielky_->size() == 0) break;
 	}
+	zasielky_->clear();
+	for (Zasielka *zasielka : *nedokonceneZasielky)
+	{
+		zasielky_->add(zasielka);
+		//nedokonceneZasielky->tryRemove(zasielka);
+		//if (nedokonceneZasielky->isEmpty()) break;
+	}
+	nedokonceneZasielky->clear();
+	delete nedokonceneZasielky;
+	
 	return zasielky;
 }
 
@@ -62,17 +76,33 @@ void Dron::setCasVolnyPoDobiti(int minuty)
 structures::LinkedList<Zasielka*> *Dron::vylozZasielky(Datum datum) // vrati list zasielok ktore sa maju vylozit na prekladisko pri posune casu
 {
 	LinkedList<Zasielka*> *zasielky = new LinkedList<Zasielka*>;
-	
+	LinkedList<Zasielka*> *nedokonceneZasielky = new LinkedList<Zasielka*>;
+
+
 	for (Zasielka *zasielka : *zasielky_)
 	{
 		if (zasielka->getDatumNaLokPrekladisko() < datum && !zasielka->Vyzdvihnuta())
 		{
 			pocetPrepravenychZasielok_++;
-			zasielky->add(zasielka);
-			zasielky_->tryRemove(zasielka);			
+			zasielky->add(zasielka);					
+		}
+		else
+		{
+			nedokonceneZasielky->add(zasielka);
 		}
 		if (zasielky_->size() == 0) break;
 	}
+	
+	zasielky_->clear();
+
+	for (Zasielka *zasielka : *nedokonceneZasielky)
+	{
+		zasielky_->add(zasielka);
+		//nedokonceneZasielky->tryRemove(zasielka);
+		//if (nedokonceneZasielky->isEmpty()) break;
+	}
+	nedokonceneZasielky->clear();
+	delete nedokonceneZasielky;
 	
 	return zasielky;
 }
@@ -104,7 +134,7 @@ string Dron::getInfoNaZapis()
 	return retazec;
 }
 
-void Dron::pridajZasielku(Zasielka * zasielka, int casNaPrekladisko)
+void Dron::pridajZasielku(Zasielka * zasielka, int casNaPrekladisko, Datum datum)
 {
 	zasielky_->add(zasielka);
 	
@@ -113,6 +143,12 @@ void Dron::pridajZasielku(Zasielka * zasielka, int casNaPrekladisko)
 	zasielka->setCasNaDobitie(casNaNabitie);
 
 	nalietaneMinuty_ += 2 * casNaPrekladisko;
+
+	if (casVolny_ < datum)
+	{
+		casVolny_ = datum;
+	}
+	casVolny_ = Datum::pridajMinuty(casVolny_, casNaPrekladisko * 2);
 }
 
 Datum Dron::getCasVolny()
